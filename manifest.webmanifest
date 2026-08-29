@@ -1,7 +1,7 @@
 {
   "name": "English Lab",
   "short_name": "English Lab",
-  "description": "План 90 дней B1 → B2, тренажёр слов, ресурсы и прогресс",
+  "description": "План 12 недель B1 → B2, тренажёр слов, ресурсы и прогресс",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

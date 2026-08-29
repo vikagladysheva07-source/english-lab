@@ -250,10 +250,10 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
     <div class="dgrid">
       <div class="dcard">
         <h3>Пройдено плана</h3>
-        <div class="ring" id="dRing"><span><span class="n" id="dPct">0%</span><span class="l" id="dRingL">день 1 из 90</span></span></div>
+        <div class="ring" id="dRing"><span><span class="n" id="dPct">0%</span><span class="l" id="dRingL">неделя 1 из 12</span></span></div>
       </div>
       <div class="dcard">
-        <h3>90 дней · чем плотнее, тем выше уровень</h3>
+        <h3>Текущий цикл · чем плотнее, тем выше уровень</h3>
         <div class="heat" id="dHeat"></div>
         <div class="dbars" id="dBars"></div>
         <div class="dlegend"><span class="tag">30 дней назад</span><span class="tag">минут в день</span><span class="tag">сегодня</span></div>
@@ -286,7 +286,7 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 </section>
 
 <section class="view" id="v-plan">
-  <div class="hd"><div><div class="eyebrow">12 недель · 3 фазы</div><h1>План <span>90 дней</span></h1></div></div>
+  <div class="hd"><div><div class="eyebrow" id="planCyc">12 недель · 3 фазы</div><h1>План <span>12 недель</span></h1></div></div>
   <div class="tabs" id="pTabs"></div>
   <div id="planBox"></div>
 </section>
@@ -337,14 +337,14 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 <section class="view" id="v-prog">
   <div class="hd"><div><div class="eyebrow" id="pPct"></div><h1>Прогресс</h1></div></div>
   <div class="grid g4" style="margin-bottom:28px">
-    <div class="cell"><div class="k">Активных дней</div><div class="v" id="pDays">0</div><div class="n">из 90</div></div>
+    <div class="cell"><div class="k">Активных дней</div><div class="v" id="pDays">0</div><div class="n">всего</div></div>
     <div class="cell"><div class="k">Задач</div><div class="v" id="pTasks">0</div><div class="n">закрыто</div></div>
     <div class="cell"><div class="k">Box 5–6</div><div class="v" id="pMast">0</div><div class="n">в долгой памяти</div></div>
     <div class="cell"><div class="k">Лучший streak</div><div class="v" id="pBest">0</div><div class="n">дней</div></div>
   </div>
   <h2>Последние 30 дней · минут</h2>
   <div class="spark" id="pSpark"></div>
-  <div class="sec"><h2>90 дней</h2><div class="cal" id="pCal"></div></div>
+  <div class="sec"><h2 id="pCalH">Карта дней</h2><div class="cal" id="pCal"></div></div>
   <div class="sec"><h2>Контрольные точки</h2><div id="pCheck"></div></div>
   <div class="sec"><h2>Журнал ошибок</h2><div id="pNotes"></div></div>
 </section>
@@ -708,7 +708,9 @@ save(){this.S.t=Date.now();
   if(this.S.sync&&this.S.sync.url){clearTimeout(this._ps);this._ps=setTimeout(()=>this.push(),4000)}},
 day(d){if(!this.S.days[d])this.S.days[d]={tasks:{},note:'',min:0};return this.S.days[d]},
 idx(d){return diffD(this.S.start,d||this.cur)},
-week(d){return Math.max(1,Math.min(12,Math.floor(this.idx(d)/7)+1))},
+week(d){return ((Math.max(0,Math.floor(this.idx(d)/7)))%12)+1},
+cycle(d){return Math.floor(Math.max(0,Math.floor(this.idx(d)/7))/12)+1},
+wk(d){return WEEKS[this.week(d)-1]},
 go(v,b){
   this.view=v;
   $('back').classList.toggle('on',v!=='home');
@@ -722,14 +724,14 @@ tgl(id){const e=document.getElementById(id);e.style.display=e.style.display==='n
 
 /* ---------- план дня ---------- */
 tasks(date){
-  const i=this.idx(date),w=WEEKS[Math.max(0,Math.min(11,Math.floor(i/7)))],dw=new Date(date+'T12:00:00').getDay(),T=[];
+  const i=this.idx(date),w=this.wk(date),cy=this.cycle(date),dw=new Date(date+'T12:00:00').getDay(),T=[];
   const a=(pri,min,t,d)=>T.push({id:date+'#'+T.length,pri,min,t,d});
   const due=this.dueToday(date).length;
 
   if(i===0){
     a(1,15,'Диагностика уровня','Cambridge Test your English. Запиши результат — это точка А.');
     a(1,20,'Диагностика грамматики','Test-English, раздел B1. Темы ниже 70% — твои дыры.');
-    a(1,10,'Монолог 2 минуты на запись','«Чем я занимаюсь». Сохрани файл — послушаешь через 90 дней.');
+    a(1,10,'Монолог 2 минуты на запись','«Чем я занимаюсь». Сохрани файл — послушаешь через три месяца.');
     a(2,10,'Первые 10 слов','Вкладка «Слова», прочитай вслух с примерами.');
     a(3,10,'Выбери по одному ресурсу из категории','Один учебник, один подкаст, один сериал. Не десять.');
     a(4,20,'Поставь якорь в календаре','Одно время каждый день.');
@@ -738,12 +740,12 @@ tasks(date){
   a(1,10,`Повтор слов · ${due}`,'Сначала скажи ответ вслух, потом открывай.');
 
   if(dw===1){
-    a(1,20,`Грамматика: ${w.gram[0]}`,'Правило, затем 20 упражнений. В конце три своих предложения.');
+    a(1,20,`Грамматика: ${w.gram[0]}`,cy>1?'Тема знакомая. Не перечитывай правило — сразу 20 упражнений на скорость, потом разбери ошибки.':'Правило, затем 20 упражнений. В конце три своих предложения.');
     a(2,15,`Ввод: ${w.input}`,'Пауза на каждой незнакомой фразе, сразу в базу.');
     a(3,10,`10 новых слов · ${w.vocab}`,'Уже открыты в базе. Прочитай вслух с примерами.');
     a(4,25,'Дополнительное чтение','Статья или глава книги.');
   }else if(dw===2){
-    a(1,20,`Грамматика: ${w.gram[1]}`,'Ошибся — выпиши правильный вариант целиком, не только исправление.');
+    a(1,20,`Грамматика: ${w.gram[1]}`,cy>1?'Второй проход: цель — не понять, а не думать. Норма — предложение за 3 секунды.':'Ошибся — выпиши правильный вариант целиком, не только исправление.');
     a(1,10,'20 предложений вслух','Про свою работу, не абстрактные.');
     a(2,15,`Ввод: ${w.input}`,'');
     a(3,10,'5 новых слов на YouGlish','Услышь, как их произносят в реальных видео.');
@@ -838,15 +840,15 @@ all(){this.rSide();this.rHome();this.rToday();this.rPlan();this.rWords();this.rR
 rSide(){},
 rHome(){
   const t=iso(new Date()),i=this.idx(t),h=new Date().getHours(),D=new Date(),
-        w=WEEKS[Math.max(0,Math.min(11,Math.floor(Math.max(0,i)/7)))];
+        w=this.wk(t),cy=this.cycle(t);
   const T=this.tasks(t),st=this.day(t),left=T.filter(x=>!st.tasks[x.id]).length;
   const hi=h<5?['Still','up']:h<12?['Good','morning']:h<18?['Good','afternoon']:['Good','evening'];
   $('hTitle').innerHTML=hi[0]+'<br><span>'+hi[1]+'</span>';
-  $('hDate').textContent=`${D.getDate()} ${MN[D.getMonth()]} · ${DN[D.getDay()]} · неделя ${this.week(t)} из 12`;
+  $('hDate').textContent=`${D.getDate()} ${MN[D.getMonth()]} · ${DN[D.getDay()]} · цикл ${cy} · неделя ${this.week(t)} из 12`;
   $('hSub').textContent=i===0?'Сегодня замеряем точку А. Всё остальное сравнивается с ней.'
     :left?`${w.t}. Осталось ${left} ${left===1?'задача':left<5?'задачи':'задач'} — это ${T.filter(x=>!st.tasks[x.id]).reduce((a,x)=>a+x.min,0)} минут.`
     :'День закрыт полностью. Завтра продолжаем.';
-  $('hDay').textContent=Math.max(1,Math.min(90,i+1))+'/90';
+  $('hDay').textContent=Math.max(1,i+1);
   $('hStreak').textContent=this.streak();
   $('hDue').textContent=this.dueToday().length;
   $('hLeft').textContent=left;
@@ -854,11 +856,11 @@ rHome(){
         act=Object.keys(this.S.days).filter(d=>this.doneD(d)).length;
   const T2=[
     ['today','Сегодня',left?`${left} из ${T.length} задач`:'всё закрыто'],
-    ['plan','План 90 дней',`неделя ${this.week(t)} · ${w.vocab.toLowerCase()}`],
+    ['plan','План',`цикл ${cy} · неделя ${this.week(t)} · ${w.vocab.toLowerCase()}`],
     ['words','Слова',`${this.S.words.length} всего · ${memo} в памяти`],
     ['drill','Тренажёр',`${this.dueToday().length} карточек сегодня`],
     ['res','Ресурсы',`${RES.length} источников`],
-    ['prog','Прогресс',`${act} активных дней из 90`]];
+    ['prog','Прогресс',`${act} активных ${act%10===1&&act%100!==11?'день':'дней'}`]];
   $('tiles').innerHTML=T2.map(([v,t2,n])=>`
     <button class="tile" onclick="APP.go('${v}')">
       <img src="img-${v}.jpg" alt="" loading="lazy">
@@ -869,19 +871,20 @@ rHome(){
   // дашборд
   const mins=Object.values(this.S.days).reduce((a,x)=>a+(x.min||0),0),
         mast=this.S.words.filter(x=>x.box>=5).length,
-        pct=Math.max(0,Math.min(100,Math.round((i+1)/90*100)));
+        base=(cy-1)*84,inCyc=Math.max(0,i)-base,
+        pct=Math.max(0,Math.min(100,Math.round((inCyc+1)/84*100)));
   $('dMet').innerHTML=[
     ['Streak',this.streak(),'дней подряд'],
-    ['Активных дней',act,'из 90'],
+    ['Активных дней',act,'всего'],
     ['Часов',Math.round(mins/60),'всего'],
     ['Слов в памяти',memo,'box 3 и выше'],
     ['Закреплено',mast,'box 5–6']
   ].map(([k,v,n])=>`<div class="cell"><div class="k">${k}</div><div class="v">${v}</div><div class="n">${n}</div></div>`).join('');
   $('dRing').style.setProperty('--p',pct);
   $('dPct').textContent=pct+'%';
-  $('dRingL').textContent=`день ${Math.max(1,Math.min(90,i+1))} из 90`;
+  $('dRingL').textContent=`неделя ${this.week(t)} из 12`;
   let hm='';
-  for(let k=0;k<90;k++){const d=addD(this.S.start,k),x=this.S.days[d],
+  for(let k=0;k<84;k++){const d=addD(this.S.start,base+k),x=this.S.days[d],
     c=x?Object.values(x.tasks||{}).filter(Boolean).length:0;
     hm+=`<i class="${c>=5?'d3':c>=3?'d2':c>=1?'d1':''} ${d===t?'t':''}" title="${d} · ${c} задач"></i>`}
   $('dHeat').innerHTML=hm;
@@ -891,9 +894,9 @@ rHome(){
 
 },
 rToday(){
-  const d=this.cur,i=this.idx(d),D=new Date(d+'T12:00:00'),w=WEEKS[Math.max(0,Math.min(11,Math.floor(i/7)))];
+  const d=this.cur,i=this.idx(d),D=new Date(d+'T12:00:00'),w=this.wk(d);
   const today=iso(new Date());
-  document.getElementById('tDate').textContent=`${D.getDate()} ${MN[D.getMonth()]} · ${DN[D.getDay()]} · день ${Math.max(1,i+1)}/90${d===today?'':' · не сегодня'}`;
+  document.getElementById('tDate').textContent=`${D.getDate()} ${MN[D.getMonth()]} · ${DN[D.getDay()]} · день ${Math.max(1,i+1)}${d===today?'':' · не сегодня'}`;
   document.getElementById('tTitle').textContent=i===0?'Диагностика':DAYT[D.getDay()];
   document.getElementById('tNow').style.opacity=d===today?'.35':'1';
   document.getElementById('kWeek').textContent=this.week(d);
@@ -928,7 +931,8 @@ check(id,min){
 move(n){this.cur=n?addD(this.cur,n):iso(new Date());this.rToday()},
 
 rPlan(){
-  const cw=this.week(iso(new Date()));
+  const cw=this.week(iso(new Date())),cy=this.cycle(iso(new Date()));
+  $('planCyc').textContent=cy>1?`цикл ${cy} · 12 недель · 3 фазы`:'12 недель · 3 фазы';
   document.getElementById('pTabs').innerHTML=PHASES.map((p,k)=>`<button class="${this.pTab===k?'on':''}" onclick="APP.pTab=${k};APP.rPlan()">Фаза ${p.n} · ${p.w}</button>`).join('');
   const p=PHASES[this.pTab];
   document.getElementById('planBox').innerHTML=`<p style="color:var(--dim);font-size:13.5px;margin:0 0 18px">${esc(p.d)}</p>`+
@@ -1050,19 +1054,23 @@ addRes(){
 rProg(){
   const act=Object.keys(this.S.days).filter(d=>this.doneD(d)).length;
   document.getElementById('pDays').textContent=act;
-  document.getElementById('pPct').textContent=Math.round(act/90*100)+'% дней активны';
+  const tot=Math.max(1,this.idx(iso(new Date()))+1);
+  document.getElementById('pPct').textContent=Math.round(act/tot*100)+'% дней активны';
   document.getElementById('pTasks').textContent=Object.values(this.S.days).reduce((a,x)=>a+Object.values(x.tasks||{}).filter(Boolean).length,0);
   document.getElementById('pMast').textContent=this.S.words.filter(w=>w.box>=5).length;
   document.getElementById('pBest').textContent=this.S.best||0;
   const t=iso(new Date());
   let mx=1;const sp=[];for(let i=29;i>=0;i--){const d=addD(t,-i),m=(this.S.days[d]||{}).min||0;mx=Math.max(mx,m);sp.push([d,m])}
   document.getElementById('pSpark').innerHTML=sp.map(([d,m])=>`<i class="${m?'f':''}" style="height:${Math.max(2,m/mx*52)}px" title="${d} · ${m} мин"></i>`).join('');
-  let c='';for(let i=0;i<90;i++){const d=addD(this.S.start,i),x=this.S.days[d],n=x?Object.values(x.tasks||{}).filter(Boolean).length:0;
+  const days=Math.max(84,Math.ceil(tot/84)*84);
+  let c='';for(let i=0;i<days;i++){const d=addD(this.S.start,i),x=this.S.days[d],n=x?Object.values(x.tasks||{}).filter(Boolean).length:0;
     c+=`<i class="${n>=5?'d3':n>=3?'d2':n>=1?'d1':''} ${d===t?'t':''}" title="${d} · ${n}"></i>`}
   document.getElementById('pCal').innerHTML=c;
+  const cy=this.cycle(iso(new Date()));
+  document.getElementById('pCalH').textContent=cy>1?`Карта дней · ${cy} цикла`:'Карта дней';
   document.getElementById('pCheck').innerHTML=CHECKS.map(k=>`
     <div style="margin-bottom:16px"><div class="row" style="margin-bottom:6px"><span class="tag g">неделя ${k.w}</span><span style="font-weight:500">${esc(k.t)}</span></div>
-    ${k.c.map((x,j)=>{const id=k.n+'-'+j;return `<div class="task ${this.S.checks[id]?'done':''}" style="padding:9px 0"><div class="bx" onclick="APP.chk('${id}')">${this.S.checks[id]?'✓':''}</div><div class="tt" style="font-weight:400;font-size:13px" onclick="APP.chk('${id}')">${esc(x)}</div></div>`}).join('')}</div>`).join('');
+    ${k.c.map((x,j)=>{const id=(cy>1?cy+'-':'')+k.n+'-'+j;return `<div class="task ${this.S.checks[id]?'done':''}" style="padding:9px 0"><div class="bx" onclick="APP.chk('${id}')">${this.S.checks[id]?'✓':''}</div><div class="tt" style="font-weight:400;font-size:13px" onclick="APP.chk('${id}')">${esc(x)}</div></div>`}).join('')}</div>`).join('');
   const N=Object.entries(this.S.days).filter(([d,x])=>x.note).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,20);
   document.getElementById('pNotes').innerHTML=N.length?N.map(([d,x])=>`<div style="padding:9px 0;border-bottom:1px solid var(--line)"><span class="tag">${d}</span><div style="font-size:13px;margin-top:2px">${esc(x.note)}</div></div>`).join(''):'<div class="empty">Записи появятся, когда начнёшь вести журнал.</div>';
 },
