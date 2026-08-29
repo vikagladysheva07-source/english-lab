@@ -156,15 +156,15 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 .kbd{font-family:var(--mono);font-size:9.5px;color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
 
 /* --- главная --- */
-.hero{position:relative;border-radius:14px;overflow:hidden;margin-bottom:14px;min-height:290px;display:flex;align-items:flex-end;border:1px solid var(--line)}
+.hero{position:relative;border-radius:14px;overflow:hidden;margin-bottom:14px;min-height:320px;display:flex;align-items:flex-end;border:1px solid var(--line)}
 .hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .hero .scrim{position:absolute;inset:0;background:linear-gradient(105deg,rgba(7,7,13,.94) 8%,rgba(7,7,13,.62) 48%,rgba(7,7,13,.34) 100%)}
 .hero .in{position:relative;padding:30px 32px;width:100%}
 .hero h1{font-size:clamp(30px,4.4vw,50px);margin-bottom:10px}
 .hero .sub{color:var(--dim);font-size:14.5px;max-width:430px;margin-bottom:20px}
-.hstat{display:flex;gap:30px;flex-wrap:wrap}
+.hstat{display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
 .hstat div{display:flex;flex-direction:column;gap:2px}
-.hstat .v{font-size:22px;font-weight:900;letter-spacing:-.8px;font-variant-numeric:tabular-nums;line-height:1}
+.hstat .v{font-size:21px;font-weight:900;letter-spacing:-.8px;font-variant-numeric:tabular-nums;line-height:1}
 .hstat .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
 .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .tile{position:relative;aspect-ratio:16/11;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--s1);padding:0;text-align:left;display:block;width:100%}
@@ -234,10 +234,10 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
       <h1 id="hTitle">Good<br><span>morning</span></h1>
       <div class="sub" id="hSub"></div>
       <div class="hstat">
-        <div><span class="v" id="hDay">1</span><span class="k">День из 90</span></div>
+        <div><span class="v" id="hDay">1</span><span class="k">День</span></div>
         <div><span class="v" id="hStreak">0</span><span class="k">Streak</span></div>
-        <div><span class="v" id="hDue">0</span><span class="k">Слов к повтору</span></div>
-        <div><span class="v" id="hLeft">0</span><span class="k">Задач осталось</span></div>
+        <div><span class="v" id="hDue">0</span><span class="k">К повтору</span></div>
+        <div><span class="v" id="hLeft">0</span><span class="k">Осталось</span></div>
       </div>
     </div>
   </div>
@@ -839,7 +839,7 @@ rHome(){
   $('hSub').textContent=i===0?'Сегодня замеряем точку А. Всё остальное сравнивается с ней.'
     :left?`${w.t}. Осталось ${left} ${left===1?'задача':left<5?'задачи':'задач'} — это ${T.filter(x=>!st.tasks[x.id]).reduce((a,x)=>a+x.min,0)} минут.`
     :'День закрыт полностью. Завтра продолжаем.';
-  $('hDay').textContent=Math.max(1,Math.min(90,i+1));
+  $('hDay').textContent=Math.max(1,Math.min(90,i+1))+'/90';
   $('hStreak').textContent=this.streak();
   $('hDue').textContent=this.dueToday().length;
   $('hLeft').textContent=left;
