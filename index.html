@@ -1007,7 +1007,7 @@ rHome(){
   $('hTitle').innerHTML=hi[0]+'<br><span>'+hi[1]+'</span>';
   $('hDate').textContent=`${D.getDate()} ${MN[D.getMonth()]} · ${DN[D.getDay()]} · цикл ${cy} · неделя ${this.week(t)} из 12`;
   const q=QUOTES[((Math.max(0,i)%QUOTES.length)+QUOTES.length)%QUOTES.length];
-  $('hQ').innerHTML=`<div class="en">“${esc(q[0])}”</div><div class="ru">${esc(q[2])}</div><div class="au">${esc(q[1])} · нажми, чтобы перевести</div>`;
+  $('hQ').innerHTML=`<div class="en">“${esc(q[0])}”</div><div class="ru">${esc(q[2])}</div><div class="au">${esc(q[1])}</div>`;
   $('hDay').textContent=Math.max(1,i+1);
   $('hStreak').textContent=this.streak();
   $('hDue').textContent=this.dueToday().length;
