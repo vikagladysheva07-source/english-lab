@@ -256,10 +256,6 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
       </div>
     </div>
     <div id="tTasks"></div>
-    <div class="sec" style="margin-top:22px">
-      <h2>Журнал ошибок</h2>
-      <textarea id="tNote" placeholder="Что сегодня не получилось сказать?"></textarea>
-    </div>
   </section>
 
   <div class="tiles" id="tiles"></div>
@@ -343,7 +339,6 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
   <div class="spark" id="pSpark"></div>
   <div class="sec"><h2 id="pCalH">Карта дней</h2><div class="cal" id="pCal"></div></div>
   <div class="sec"><h2>Контрольные точки</h2><div id="pCheck"></div></div>
-  <div class="sec"><h2>Журнал ошибок</h2><div id="pNotes"></div></div>
 </section>
 
 <section class="view" id="v-set">
@@ -667,7 +662,6 @@ init(){
   if(!this.S||!this.S.words)this.S=this.fresh();
   if(!this.S.fav)this.S.fav={};
 
-  document.getElementById('tNote').oninput=()=>{clearTimeout(this._n);this._n=setTimeout(()=>{this.day(this.cur).note=document.getElementById('tNote').value;this.save()},500)};
   document.addEventListener('keydown',e=>this.keys(e));
   this.adopt();
   this.all();
@@ -905,7 +899,6 @@ rToday(){
         ${t.d?`<button class="ico ${open[t.id]?'on':''}" title="Подробно" onclick="APP.info('${t.id}')">i</button>`:''}
       </div>
     </div>${t.d?`<div class="tsub ${open[t.id]?'on':''}">${esc(t.d)}</div>`:''}`).join('');
-  $('tNote').value=st.note||'';
 },
 info(id){this._open=this._open||{};this._open[id]=!this._open[id];this.rToday()},
 check(id,min){
@@ -1057,8 +1050,6 @@ rProg(){
   document.getElementById('pCheck').innerHTML=CHECKS.map(k=>`
     <div style="margin-bottom:16px"><div class="row" style="margin-bottom:6px"><span class="tag g">неделя ${k.w}</span><span style="font-weight:500">${esc(k.t)}</span></div>
     ${k.c.map((x,j)=>{const id=(cy>1?cy+'-':'')+k.n+'-'+j;return `<div class="task ${this.S.checks[id]?'done':''}" style="padding:9px 0"><div class="bx" onclick="APP.chk('${id}')">${this.S.checks[id]?'✓':''}</div><div class="tt" style="font-weight:400;font-size:13px" onclick="APP.chk('${id}')">${esc(x)}</div></div>`}).join('')}</div>`).join('');
-  const N=Object.entries(this.S.days).filter(([d,x])=>x.note).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,20);
-  document.getElementById('pNotes').innerHTML=N.length?N.map(([d,x])=>`<div style="padding:9px 0;border-bottom:1px solid var(--line)"><span class="tag">${d}</span><div style="font-size:13px;margin-top:2px">${esc(x.note)}</div></div>`).join(''):'<div class="empty">Записи появятся, когда начнёшь вести журнал.</div>';
 },
 chk(id){this.S.checks[id]=!this.S.checks[id];this.save();this.rProg()},
 
