@@ -189,7 +189,12 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 .hero .scrim{position:absolute;inset:0;background:linear-gradient(105deg,rgba(7,7,13,.94) 8%,rgba(7,7,13,.62) 48%,rgba(7,7,13,.34) 100%)}
 .hero .in{position:relative;padding:30px 32px;width:100%}
 .hero h1{font-size:clamp(30px,4.4vw,50px);margin-bottom:10px}
-.hero .sub{color:var(--dim);font-size:14.5px;max-width:430px;margin-bottom:20px}
+.hero .sub{color:var(--dim);font-size:14.5px;max-width:460px;margin-bottom:20px}
+.hq{max-width:470px;margin-bottom:20px;cursor:pointer}
+.hq .en{font-size:16px;line-height:1.5;color:var(--ink);font-weight:500;letter-spacing:-.1px}
+.hq .ru{font-size:13.5px;line-height:1.5;color:var(--dim);margin-top:7px;display:none}
+.hq.open .ru{display:block}
+.hq .au{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-top:8px}
 .hstat{display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
 .hstat div{display:flex;flex-direction:column;gap:2px}
 .hstat .v{font-size:21px;font-weight:900;letter-spacing:-.8px;font-variant-numeric:tabular-nums;line-height:1}
@@ -311,7 +316,7 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
     <div class="in">
       <div class="eyebrow" id="hDate"></div>
       <h1 id="hTitle">Good<br><span>morning</span></h1>
-      <div class="sub" id="hSub"></div>
+      <div class="hq" id="hQ" onclick="this.classList.toggle('open')"></div>
       <div class="hstat">
         <div><span class="v" id="hDay">1</span><span class="k">День</span></div>
         <div><span class="v" id="hStreak">0</span><span class="k">Streak</span></div>
@@ -494,6 +499,39 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 <div class="tmr" id="tmr"><span class="t" id="tmrT">00:00</span><span class="l" id="tmrL"></span><button class="btn xs" onclick="APP.stopTimer()">Стоп</button></div>
 
 <script>
+const QUOTES=[
+["The limits of my language mean the limits of my world.","Ludwig Wittgenstein","Границы моего языка — это границы моего мира."],
+["A different language is a different vision of life.","Federico Fellini","Другой язык — это другой взгляд на жизнь."],
+["To have another language is to possess a second soul.","Charlemagne","Владеть вторым языком — значит иметь вторую душу."],
+["We are what we repeatedly do.","Aristotle","Мы то, что делаем изо дня в день."],
+["Fall seven times, stand up eight.","Japanese proverb","Упади семь раз — поднимись восемь."],
+["Little by little, one travels far.","Spanish proverb","Понемногу — а уходишь далеко."],
+["The expert in anything was once a beginner.","Helen Hayes","Любой эксперт когда-то был новичком."],
+["Well done is better than well said.","Benjamin Franklin","Хорошо сделано лучше, чем хорошо сказано."],
+["It always seems impossible until it is done.","Nelson Mandela","Всё кажется невозможным, пока не сделано."],
+["Nothing will work unless you do.","Maya Angelou","Ничто не сработает, пока не работаешь ты."],
+["Simplicity is the ultimate sophistication.","Leonardo da Vinci","Простота — высшая форма изящества."],
+["Discipline equals freedom.","Jocko Willink","Дисциплина и есть свобода."],
+["Learning another language is like becoming another person.","Haruki Murakami","Учить другой язык — всё равно что становиться другим человеком."],
+["What we learn with pleasure we never forget.","Alfred Mercier","Выученное с удовольствием не забывается."],
+["Action is the foundational key to all success.","Pablo Picasso","Действие — главный ключ к любому успеху."],
+["The way to get started is to begin doing.","Walt Disney","Способ начать — просто начать делать."],
+["Change your language and you change your thoughts.","Karl Albrecht","Меняешь язык — меняешь мышление."],
+["Language is the road map of a culture.","Rita Mae Brown","Язык — это карта культуры."],
+["Courage is knowing what not to fear.","Plato","Смелость — это знать, чего не стоит бояться."],
+["Repetition is the mother of learning.","Latin proverb","Повторение — мать учения."],
+["You do not rise to your goals, you fall to your systems.","James Clear","Ты не дотягиваешься до целей — ты падаешь до уровня своих систем."],
+["Great things are done by small things brought together.","Vincent van Gogh","Большое складывается из собранного вместе малого."],
+["Slow is smooth, and smooth is fast.","Navy SEAL saying","Медленно — значит гладко, гладко — значит быстро."],
+["The best way out is always through.","Robert Frost","Лучший выход — всегда насквозь."],
+["Do not wish it were easier, wish you were better.","Jim Rohn","Не желай, чтобы стало легче, — желай стать сильнее."],
+["Quality is not an act, it is a habit.","Aristotle","Качество — не поступок, а привычка."],
+["Whether you think you can or cannot, you are right.","Henry Ford","Считаешь, что можешь или не можешь, — в обоих случаях права."],
+["A year from now you may wish you had started today.","Karen Lamb","Через год ты пожалеешь, что не начала сегодня."],
+["The secret of getting ahead is getting started.","Mark Twain","Секрет успеха в том, чтобы начать."],
+["Success is the sum of small efforts repeated daily.","Robert Collier","Успех — это сумма маленьких усилий, повторённых изо дня в день."]
+];
+
 const PHASES=[
  {n:1,t:"Фундамент",w:"1–4",d:"Времена, артикли, модальные — то, из-за чего речь рвётся."},
  {n:2,t:"Структура",w:"5–8",d:"Условные, пассив, придаточные. Главный разрыв между B1 и B2."},
@@ -968,9 +1006,8 @@ rHome(){
   const hi=h<5?['Still','up']:h<12?['Good','morning']:h<18?['Good','afternoon']:['Good','evening'];
   $('hTitle').innerHTML=hi[0]+'<br><span>'+hi[1]+'</span>';
   $('hDate').textContent=`${D.getDate()} ${MN[D.getMonth()]} · ${DN[D.getDay()]} · цикл ${cy} · неделя ${this.week(t)} из 12`;
-  $('hSub').textContent=i===0?'Сегодня замеряем точку А. Всё остальное сравнивается с ней.'
-    :left?`${w.t}. Осталось ${left} ${left===1?'задача':left<5?'задачи':'задач'} — это ${T.filter(x=>!st.tasks[x.id]).reduce((a,x)=>a+x.min,0)} минут.`
-    :'День закрыт полностью. Завтра продолжаем.';
+  const q=QUOTES[((Math.max(0,i)%QUOTES.length)+QUOTES.length)%QUOTES.length];
+  $('hQ').innerHTML=`<div class="en">“${esc(q[0])}”</div><div class="ru">${esc(q[2])}</div><div class="au">${esc(q[1])} · нажми, чтобы перевести</div>`;
   $('hDay').textContent=Math.max(1,i+1);
   $('hStreak').textContent=this.streak();
   $('hDue').textContent=this.dueToday().length;
