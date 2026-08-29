@@ -38,6 +38,9 @@ button{cursor:pointer}
 .gear:hover{color:var(--pur-br);background:var(--s2)}
 
 /* --- дашборд --- */
+.today{margin-top:26px}
+.thead{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.thead h2{margin:0}
 .dash{margin-top:36px}
 .dmet{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}
 .dgrid{display:grid;grid-template-columns:236px 1fr;gap:12px}
@@ -242,6 +245,23 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
       </div>
     </div>
   </div>
+  <section class="today">
+    <div class="thead">
+      <h2 id="tLoad">План дня</h2>
+      <div class="row" style="gap:6px">
+        <span class="tag" id="tWhen"></span>
+        <button class="btn xs" onclick="APP.move(-1)">←</button>
+        <button class="btn xs" onclick="APP.move(1)">→</button>
+        <button class="btn xs" id="tNow" onclick="APP.move(0)">Сегодня</button>
+      </div>
+    </div>
+    <div id="tTasks"></div>
+    <div class="sec" style="margin-top:22px">
+      <h2>Журнал ошибок</h2>
+      <textarea id="tNote" placeholder="Что сегодня не получилось сказать?"></textarea>
+    </div>
+  </section>
+
   <div class="tiles" id="tiles"></div>
 
   <section class="dash">
@@ -260,29 +280,6 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
       </div>
     </div>
   </section>
-</section>
-
-<section class="view" id="v-today">
-  <div class="hd"><div>
-    <div class="eyebrow" id="tDate"></div>
-    <h1 id="tTitle"></h1>
-  </div><div class="row">
-    <button class="btn xs" onclick="APP.move(-1)">←</button>
-    <button class="btn xs" onclick="APP.move(1)">→</button>
-    <button class="btn xs" id="tNow" onclick="APP.move(0)">Сегодня</button>
-  </div></div>
-  <div class="grid g4" style="margin-bottom:28px">
-    <div class="cell"><div class="k">Неделя</div><div class="v" id="kWeek">1</div><div class="n" id="kWeekT"></div></div>
-    <div class="cell"><div class="k">К повтору</div><div class="v" id="kDue">0</div><div class="n" id="kDueN"></div></div>
-    <div class="cell"><div class="k">В памяти</div><div class="v" id="kMem">0</div><div class="n">слов box 3+</div></div>
-    <div class="cell"><div class="k">Часов</div><div class="v" id="kHours">0</div><div class="n">всего</div></div>
-  </div>
-  <h2 id="tLoad">План дня</h2>
-  <div id="tTasks"></div>
-  <div class="sec">
-    <h2>Журнал ошибок</h2>
-    <textarea id="tNote" placeholder="Что сегодня не получилось сказать?"></textarea>
-  </div>
 </section>
 
 <section class="view" id="v-plan">
@@ -855,7 +852,6 @@ rHome(){
   const memo=this.S.words.filter(x=>x.box>=3).length,
         act=Object.keys(this.S.days).filter(d=>this.doneD(d)).length;
   const T2=[
-    ['today','Сегодня',left?`${left} из ${T.length} задач`:'всё закрыто'],
     ['plan','План',`цикл ${cy} · неделя ${this.week(t)} · ${w.vocab.toLowerCase()}`],
     ['words','Слова',`${this.S.words.length} всего · ${memo} в памяти`],
     ['drill','Тренажёр',`${this.dueToday().length} карточек сегодня`],
@@ -894,22 +890,12 @@ rHome(){
 
 },
 rToday(){
-  const d=this.cur,i=this.idx(d),D=new Date(d+'T12:00:00'),w=this.wk(d);
-  const today=iso(new Date());
-  document.getElementById('tDate').textContent=`${D.getDate()} ${MN[D.getMonth()]} · ${DN[D.getDay()]} · день ${Math.max(1,i+1)}${d===today?'':' · не сегодня'}`;
-  document.getElementById('tTitle').textContent=i===0?'Диагностика':DAYT[D.getDay()];
-  document.getElementById('tNow').style.opacity=d===today?'.35':'1';
-  document.getElementById('kWeek').textContent=this.week(d);
-  document.getElementById('kWeekT').textContent=w.vocab.toLowerCase();
-  const tot=this.dueWords().length,cap=this.dueToday().length;
-  document.getElementById('kDue').textContent=cap;
-  document.getElementById('kDueN').textContent=tot>cap?`из ${tot}`:'слов';
-  document.getElementById('kMem').textContent=this.S.words.filter(x=>x.box>=3).length;
-  document.getElementById('kHours').textContent=Math.round(Object.values(this.S.days).reduce((a,x)=>a+(x.min||0),0)/60);
-
+  const d=this.cur,D=new Date(d+'T12:00:00'),today=iso(new Date());
   const T=this.tasks(d),st=this.day(d),open=this._open||{};
-  document.getElementById('tLoad').textContent=`План дня · ${T.reduce((a,t)=>a+t.min,0)} минут`;
-  document.getElementById('tTasks').innerHTML=T.map(t=>`
+  $('tLoad').textContent=`План дня · ${T.reduce((a,t)=>a+t.min,0)} минут`;
+  $('tWhen').textContent=d===today?'':`${D.getDate()} ${MN[D.getMonth()]} · ${DN[D.getDay()]}`;
+  $('tNow').style.opacity=d===today?'.35':'1';
+  $('tTasks').innerHTML=T.map(t=>`
     <div class="task ${st.tasks[t.id]?'done':''}">
       <div class="bx" onclick="APP.check('${t.id}',${t.min})">${st.tasks[t.id]?'✓':''}</div>
       <div class="tt" onclick="APP.check('${t.id}',${t.min})">${esc(t.t)}</div>
@@ -918,17 +904,17 @@ rToday(){
         <button class="ico" title="Таймер" onclick="APP.startTimer(${t.min},'${esc(t.t).replace(/'/g,'')}')">▷</button>
         ${t.d?`<button class="ico ${open[t.id]?'on':''}" title="Подробно" onclick="APP.info('${t.id}')">i</button>`:''}
       </div>
-    </div>${t.d?`<div class="tsub ${open[t.id]?'on':''}" id="s${t.id}">${esc(t.d)}</div>`:''}`).join('');
-  document.getElementById('tNote').value=st.note||'';
+    </div>${t.d?`<div class="tsub ${open[t.id]?'on':''}">${esc(t.d)}</div>`:''}`).join('');
+  $('tNote').value=st.note||'';
 },
 info(id){this._open=this._open||{};this._open[id]=!this._open[id];this.rToday()},
 check(id,min){
   const s=this.day(this.cur);s.tasks[id]=!s.tasks[id];
   s.min=Math.max(0,(s.min||0)+(s.tasks[id]?min:-min));
-  this.save();this.rToday();this.rSide();
+  this.save();this.rToday();this.rHome();
   if(this.tasks(this.cur).every(t=>s.tasks[t.id]))this.toast('День закрыт · streak '+this.streak());
 },
-move(n){this.cur=n?addD(this.cur,n):iso(new Date());this.rToday()},
+move(n){this.cur=n?addD(this.cur,n):iso(new Date());this.rToday();this.rHome()},
 
 rPlan(){
   const cw=this.week(iso(new Date())),cy=this.cycle(iso(new Date()));
