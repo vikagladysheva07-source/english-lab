@@ -1191,10 +1191,17 @@ delText(id,e){
   if(this.S.tcur===id)this.S.tcur=null;
   this.save();this.rRead();
 },
+STOP:new Set(('to the a an of in on at for with that this it is are be been being and or but no not up out off own '+
+ 'my i you we they he she as by from into than then there here so if do does did have has had will would can could '+
+ 'some any all its his her their our your one two more most less very just also about over under again still yet '+
+ 'what when where who how why me him them us was were what\'s let lets make made get got go going').split(' ')),
 known(){
   if(!this._kn||this._knN!==this.S.words.length){
     this._kn=new Set();this._knN=this.S.words.length;
-    this.S.words.forEach(w=>String(w.en).toLowerCase().split(/[^a-z']+/).forEach(p=>p.length>2&&this._kn.add(p)));
+    this.S.words.forEach(w=>{
+      const full=String(w.en).toLowerCase().replace(/^to\s+/,'').trim();
+      full.split(/[^a-z']+/).filter(p=>p.length>=4&&!this.STOP.has(p)).forEach(p=>this._kn.add(p));
+    });
   }
   return this._kn;
 },
