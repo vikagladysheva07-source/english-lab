@@ -154,6 +154,39 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 .tmr .t{font-family:var(--mono);font-size:19px;font-variant-numeric:tabular-nums}
 .tmr .l{font-size:11.5px;color:var(--dim);max-width:150px}
 .kbd{font-family:var(--mono);font-size:9.5px;color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+
+/* --- главная --- */
+.hero{position:relative;border-radius:14px;overflow:hidden;margin-bottom:14px;min-height:290px;display:flex;align-items:flex-end;border:1px solid var(--line)}
+.hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero .scrim{position:absolute;inset:0;background:linear-gradient(105deg,rgba(7,7,13,.94) 8%,rgba(7,7,13,.62) 48%,rgba(7,7,13,.34) 100%)}
+.hero .in{position:relative;padding:30px 32px;width:100%}
+.hero h1{font-size:clamp(30px,4.4vw,50px);margin-bottom:10px}
+.hero .sub{color:var(--dim);font-size:14.5px;max-width:430px;margin-bottom:20px}
+.hstat{display:flex;gap:30px;flex-wrap:wrap}
+.hstat div{display:flex;flex-direction:column;gap:2px}
+.hstat .v{font-size:22px;font-weight:900;letter-spacing:-.8px;font-variant-numeric:tabular-nums;line-height:1}
+.hstat .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tile{position:relative;aspect-ratio:16/11;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--s1);padding:0;text-align:left;display:block;width:100%}
+.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.3,1)}
+.tile .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,7,13,.1) 20%,rgba(7,7,13,.9) 92%)}
+.tile .in{position:absolute;inset:auto 0 0 0;padding:15px 16px}
+.tile .t{font-size:15px;font-weight:700;letter-spacing:-.2px}
+.tile .n{font-family:var(--mono);font-size:10.5px;color:var(--pur-br);margin-top:4px;letter-spacing:.06em}
+.tile .go{position:absolute;top:13px;right:14px;font-family:var(--mono);font-size:13px;color:var(--ink);opacity:0;transform:translateX(-4px);transition:.2s}
+.tile:hover img{transform:scale(1.06)}
+.tile:hover .go{opacity:1;transform:none}
+.tile:hover{border-color:var(--line-2)}
+.credits{display:grid;gap:5px}
+.credits a{color:var(--faint);text-decoration:none;font-size:11.5px;font-family:var(--mono)}
+.credits a:hover{color:var(--pur-br)}
+@media(max-width:880px){
+  .tiles{grid-template-columns:1fr 1fr;gap:9px}
+  .tile{aspect-ratio:16/12}
+  .hero{min-height:230px}.hero .in{padding:20px}
+  .hstat{gap:20px}
+}
+@media(max-width:520px){.tiles{grid-template-columns:1fr}.tile{aspect-ratio:16/8}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 @media(max-width:880px){
   .app{grid-template-columns:1fr}
@@ -173,7 +206,8 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 <aside class="side" id="side">
   <div class="brand">English <b>Lab</b></div>
   <nav class="nav" id="nav">
-    <button data-v="today" class="on">Сегодня<span class="cnt" id="nToday"></span></button>
+    <button data-v="home" class="on">Главная</button>
+    <button data-v="today">Сегодня<span class="cnt" id="nToday"></span></button>
     <button data-v="plan">План</button>
     <button data-v="words">Слова<span class="cnt" id="nWords"></span></button>
     <button data-v="drill">Тренажёр<span class="cnt" id="nDue"></span></button>
@@ -191,7 +225,26 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 <main class="main">
 <div class="mtop"><button onclick="document.getElementById('side').classList.toggle('open')">☰</button><div class="brand" style="padding:0">English <b>Lab</b></div></div>
 
-<section class="view on" id="v-today">
+<section class="view on" id="v-home">
+  <div class="hero">
+    <img src="img-hero.jpg" alt="Ночной Нью-Йорк">
+    <div class="scrim"></div>
+    <div class="in">
+      <div class="eyebrow" id="hDate"></div>
+      <h1 id="hTitle">Good<br><span>morning</span></h1>
+      <div class="sub" id="hSub"></div>
+      <div class="hstat">
+        <div><span class="v" id="hDay">1</span><span class="k">День из 90</span></div>
+        <div><span class="v" id="hStreak">0</span><span class="k">Streak</span></div>
+        <div><span class="v" id="hDue">0</span><span class="k">Слов к повтору</span></div>
+        <div><span class="v" id="hLeft">0</span><span class="k">Задач осталось</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="tiles" id="tiles"></div>
+</section>
+
+<section class="view" id="v-today">
   <div class="hd"><div>
     <div class="eyebrow" id="tDate"></div>
     <h1 id="tTitle"></h1>
@@ -307,6 +360,7 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
     </div>
   </div>
   <div class="sec"><h2>Метод</h2><div id="methodBox"></div></div>
+  <div class="sec"><h2>Фотографии</h2><div class="credits" id="creds"></div></div>
 </section>
 </main>
 </div>
@@ -578,6 +632,7 @@ const RES=[
 <script>
 /* Подставляется при деплое. Это публичные значения Supabase — они и так
    уходят в браузер. Доступ к данным даёт не они, а ключ в конце ссылки (#k=...). */
+const CRED={"hero": {"a": "Acediscovery", "l": "CC BY 4.0", "u": "https://commons.wikimedia.org/wiki/File:New-York-City-night-skyline-September-2014.jpg"}, "today": {"a": "Florian Klauer florianklauer", "l": "CC0", "u": "https://commons.wikimedia.org/wiki/File:Vintage_typewriter_(Unsplash).jpg"}, "plan": {"a": "Arild Vågen", "l": "CC BY-SA 4.0", "u": "https://commons.wikimedia.org/wiki/File:Brooklyn_Bridge_August_2017.jpg"}, "words": {"a": "MSwierenga", "l": "CC0", "u": "https://commons.wikimedia.org/wiki/File:Simon_Room_mezzanine_bookshelves.jpg"}, "drill": {"a": "Kpetaluma", "l": "CC0", "u": "https://commons.wikimedia.org/wiki/File:Woolf_Wall_at_the_Sitting_Room_Library.jpg"}, "res": {"a": "Umimmak", "l": "CC BY-SA 4.0", "u": "https://commons.wikimedia.org/wiki/File:Catullus_Books_NYPL_Rose_Main_Reading_Room.jpg"}, "prog": {"a": "Julian Herzog (Website)", "l": "CC BY 4.0", "u": "https://commons.wikimedia.org/wiki/File:Big_Ben_Elizabeth_Tower_London_2023_01.jpg"}};
 const CFG={url:'https://amcbxjwgiqphqikzcxfj.supabase.co',key:'sb_publishable_pDMx4w2cbHbuf7Y6cHiE2g_mFT8hlPB'};
 const KEY='wikki_english_lab_v1',INT=[0,1,3,7,16,35,90];
 const DN=['вс','пн','вт','ср','чт','пт','сб'],MN=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
@@ -760,7 +815,7 @@ keys(e){
   else if(this.shown&&['1','2','3'].includes(e.key))this.ans(+e.key-1);
 },
 
-all(){this.rSide();this.rToday();this.rPlan();this.rWords();this.rRes();this.rProg();this.rSet()},
+all(){this.rSide();this.rHome();this.rToday();this.rPlan();this.rWords();this.rRes();this.rProg();this.rSet()},
 
 rSide(){
   const i=this.idx(iso(new Date()))+1;
@@ -774,6 +829,35 @@ rSide(){
   document.getElementById('nToday').textContent=left||'✓';
 },
 
+rHome(){
+  const t=iso(new Date()),i=this.idx(t),h=new Date().getHours(),D=new Date(),
+        w=WEEKS[Math.max(0,Math.min(11,Math.floor(Math.max(0,i)/7)))];
+  const T=this.tasks(t),st=this.day(t),left=T.filter(x=>!st.tasks[x.id]).length;
+  const hi=h<5?['Still','up']:h<12?['Good','morning']:h<18?['Good','afternoon']:['Good','evening'];
+  $('hTitle').innerHTML=hi[0]+'<br><span>'+hi[1]+'</span>';
+  $('hDate').textContent=`${D.getDate()} ${MN[D.getMonth()]} · ${DN[D.getDay()]} · неделя ${this.week(t)} из 12`;
+  $('hSub').textContent=i===0?'Сегодня замеряем точку А. Всё остальное сравнивается с ней.'
+    :left?`${w.t}. Осталось ${left} ${left===1?'задача':left<5?'задачи':'задач'} — это ${T.filter(x=>!st.tasks[x.id]).reduce((a,x)=>a+x.min,0)} минут.`
+    :'День закрыт полностью. Завтра продолжаем.';
+  $('hDay').textContent=Math.max(1,Math.min(90,i+1));
+  $('hStreak').textContent=this.streak();
+  $('hDue').textContent=this.dueToday().length;
+  $('hLeft').textContent=left;
+  const memo=this.S.words.filter(x=>x.box>=3).length, act=Object.keys(this.S.days).filter(d=>this.doneD(d)).length;
+  const T2=[
+    ['today','Сегодня',left?`${left} из ${T.length} задач`:'всё закрыто'],
+    ['plan','План 90 дней',`неделя ${this.week(t)} · ${w.vocab.toLowerCase()}`],
+    ['words','Слова',`${this.S.words.length} всего · ${memo} в памяти`],
+    ['drill','Тренажёр',`${this.dueToday().length} карточек сегодня`],
+    ['res','Ресурсы',`${RES.length} источников`],
+    ['prog','Прогресс',`${act} активных дней из 90`]];
+  $('tiles').innerHTML=T2.map(([v,t2,n])=>`
+    <button class="tile" onclick="APP.go('${v}')">
+      <img src="img-${v}.jpg" alt="" loading="lazy">
+      <div class="scrim"></div><span class="go">→</span>
+      <div class="in"><div class="t">${t2}</div><div class="n">${esc(n)}</div></div>
+    </button>`).join('');
+},
 rToday(){
   const d=this.cur,i=this.idx(d),D=new Date(d+'T12:00:00'),w=WEEKS[Math.max(0,Math.min(11,Math.floor(i/7)))];
   const today=iso(new Date());
