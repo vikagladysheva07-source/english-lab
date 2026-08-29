@@ -849,6 +849,8 @@ rHome(){
   $('hStreak').textContent=this.streak();
   $('hDue').textContent=this.dueToday().length;
   $('hLeft').textContent=left;
+  const memo=this.S.words.filter(x=>x.box>=3).length,
+        act=Object.keys(this.S.days).filter(d=>this.doneD(d)).length;
   const T2=[
     ['today','Сегодня',left?`${left} из ${T.length} задач`:'всё закрыто'],
     ['plan','План 90 дней',`неделя ${this.week(t)} · ${w.vocab.toLowerCase()}`],
@@ -856,10 +858,15 @@ rHome(){
     ['drill','Тренажёр',`${this.dueToday().length} карточек сегодня`],
     ['res','Ресурсы',`${RES.length} источников`],
     ['prog','Прогресс',`${act} активных дней из 90`]];
+  $('tiles').innerHTML=T2.map(([v,t2,n])=>`
+    <button class="tile" onclick="APP.go('${v}')">
+      <img src="img-${v}.jpg" alt="" loading="lazy">
+      <div class="scrim"></div><span class="go">→</span>
+      <div class="in"><div class="t">${t2}</div><div class="n">${esc(n)}</div></div>
+    </button>`).join('');
+
   // дашборд
-  const memo=this.S.words.filter(x=>x.box>=3).length,
-        act=Object.keys(this.S.days).filter(d=>this.doneD(d)).length,
-        mins=Object.values(this.S.days).reduce((a,x)=>a+(x.min||0),0),
+  const mins=Object.values(this.S.days).reduce((a,x)=>a+(x.min||0),0),
         mast=this.S.words.filter(x=>x.box>=5).length,
         pct=Math.max(0,Math.min(100,Math.round((i+1)/90*100)));
   $('dMet').innerHTML=[
@@ -881,12 +888,6 @@ rHome(){
   for(let k=29;k>=0;k--){const d=addD(t,-k),m=(this.S.days[d]||{}).min||0;mx=Math.max(mx,m);sp.push([d,m])}
   $('dBars').innerHTML=sp.map(([d,m])=>`<i class="${m?'f':''}" style="height:${Math.max(2,Math.round(m/mx*64))}px" title="${d} · ${m} мин"></i>`).join('');
 
-  $('tiles').innerHTML=T2.map(([v,t2,n])=>`
-    <button class="tile" onclick="APP.go('${v}')">
-      <img src="img-${v}.jpg" alt="" loading="lazy">
-      <div class="scrim"></div><span class="go">→</span>
-      <div class="in"><div class="t">${t2}</div><div class="n">${esc(n)}</div></div>
-    </button>`).join('');
 },
 rToday(){
   const d=this.cur,i=this.idx(d),D=new Date(d+'T12:00:00'),w=WEEKS[Math.max(0,Math.min(11,Math.floor(i/7)))];
