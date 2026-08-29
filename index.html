@@ -660,7 +660,7 @@ const $=i=>document.getElementById(i)||{value:'',textContent:'',innerHTML:'',sty
 const norm=s=>s.toLowerCase().replace(/[^a-zа-яё0-9 ]/gi,'').replace(/\s+/g,' ').trim();
 
 const APP={
-S:null,view:'today',cur:iso(new Date()),mode:'due',queue:[],card:null,shown:false,wTab:'all',rTab:RCAT[0],pTab:0,tick:null,
+S:null,view:'home',cur:iso(new Date()),mode:'due',queue:[],card:null,shown:false,wTab:'all',rTab:RCAT[0],pTab:0,tick:null,
 
 init(){
   try{this.S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
