@@ -234,6 +234,19 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 .look{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
 .look a{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--pur-br);text-decoration:none;border:1px solid var(--line);border-radius:7px;padding:5px 9px;transition:.14s}
 .look a:hover{border-color:var(--line-2);background:var(--s2)}
+/* --- говорение --- */
+.sp{border:1px solid var(--line);border-radius:12px;padding:42px 26px;text-align:center;min-height:250px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px}
+.sp .pr{font-size:26px;font-weight:700;letter-spacing:-.6px;max-width:600px;line-height:1.4;text-wrap:balance}
+.sp .pr.ru{font-weight:500;color:var(--ink)}
+.sp .heard{font-size:14px;color:var(--dim);max-width:560px;font-style:italic}
+.mic{width:76px;height:76px;border-radius:50%;border:1px solid var(--line-2);background:var(--s2);font-size:26px;display:grid;place-items:center;transition:.18s}
+.mic:hover{background:var(--s3)}
+.mic.rec{background:var(--pur);border-color:var(--pur);color:#0B0712;animation:pulse 1.3s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(155,111,232,.5)}50%{box-shadow:0 0 0 14px rgba(155,111,232,0)}}
+.score{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.tgt span{transition:color .2s}
+.tgt .hit{color:var(--ink)}
+.tgt .miss{color:#E8737C}
 /* --- редактор --- */
 .modal{position:fixed;inset:0;z-index:80;background:rgba(5,5,9,.72);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:6vh 16px 40px;overflow-y:auto}
 .modal.on{display:flex}
@@ -319,6 +332,16 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
       </div>
     </div>
   </section>
+</section>
+
+<section class="view" id="v-speak">
+  <div class="hd"><div><div class="eyebrow" id="spMeta"></div><h1>Говорение</h1></div></div>
+  <div class="tabs" id="spTabs">
+    <button class="on" onclick="APP.spMode('say',this)">скажи по-английски</button>
+    <button onclick="APP.spMode('read',this)">прочитай вслух</button>
+  </div>
+  <div class="sp" id="spBox"></div>
+  <div class="row" id="spBtns" style="margin-top:14px;justify-content:center"></div>
 </section>
 
 <section class="view" id="v-read">
@@ -777,6 +800,7 @@ go(v,b){
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   window.scrollTo(0,0);
   if(v==='drill')this.build();
+  if(v==='speak')this.spBuild();
   this.all();
 },
 toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(this._t);this._t=setTimeout(()=>t.classList.remove('on'),1800)},
@@ -921,6 +945,7 @@ rHome(){
         act=Object.keys(this.S.days).filter(d=>this.doneD(d)).length;
   const T2=[
     ['plan','План',`цикл ${cy} · неделя ${this.week(t)} · ${w.vocab.toLowerCase()}`],
+    ['speak','Говорение',`${this.S.words.filter(w=>w.ex).length} фраз для практики`],
     ['read','Читалка',`${(this.S.texts||[]).length?((this.S.texts||[]).length+' текстов'):'вставь текст и тапай слова'}`],
     ['words','Слова',`${this.S.words.length} всего · ${memo} в памяти`],
     ['drill','Тренажёр',`${this.dueToday().length} карточек сегодня`],
@@ -1172,6 +1197,71 @@ saveSet(){
   this.S.mins=+document.getElementById('stMin').value;
   if(nw!==old){const sh=diffD(old,nw);this.S.words.forEach(w=>{if(w.reps===0)w.due=addD(w.due,sh)});this.S.start=nw;this.cur=iso(new Date())}
   this.save();this.all();this.toast('Сохранено');
+},
+/* ---------- говорение ---------- */
+spMode(m,b){this.spm=m;if(b)document.querySelectorAll('#spTabs button').forEach(x=>x.classList.toggle('on',x===b));this.spBuild()},
+spBuild(){
+  const pool=this.S.words.filter(w=>w.ex&&w.ex.split(/\s+/).length>=4);
+  const due=pool.filter(w=>w.due<=iso(new Date()));
+  this.spq=(due.length>=5?due:pool).slice().sort(()=>Math.random()-.5);
+  this.spNext();
+},
+spNext(){this.spc=this.spq&&this.spq.shift()||null;this.spr=null;this.spRender()},
+tok(x){return String(x||'').toLowerCase().replace(/[^a-z0-9'\s]/g,' ').split(/\s+/).filter(Boolean)},
+compare(target,said){
+  const T=this.tok(target),S=this.tok(said),marks=[];let j=0,hit=0;
+  T.forEach(w=>{
+    let f=-1;
+    for(let k=j;k<Math.min(S.length,j+4);k++)if(S[k]===w){f=k;break}
+    if(f<0&&S.includes(w)&&S.indexOf(w)>=j)f=S.indexOf(w);
+    if(f>=0){marks.push(1);hit++;j=f+1}else marks.push(0);
+  });
+  return {marks,words:T,pct:T.length?Math.round(hit/T.length*100):0};
+},
+listen(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR)return this.toast('Браузер не умеет распознавать речь — открой в Safari или Chrome');
+  if(this.rec){try{this.rec.stop()}catch(e){}this.rec=null;this.spRender();return}
+  const r=new SR();r.lang='en-US';r.interimResults=false;r.maxAlternatives=3;r.continuous=false;
+  this.rec=r;this.spRender();
+  r.onresult=e=>{
+    const alts=[...e.results[0]].map(a=>a.transcript);
+    const target=this.spm==='read'?this.spc.ex:this.spc.ex;
+    let best=alts[0],bestP=-1;
+    alts.forEach(a=>{const p=this.compare(target,a).pct;if(p>bestP){bestP=p;best=a}});
+    this.spr={said:best,...this.compare(target,best)};
+    this.rec=null;this.spRender();
+    if(this.spm==='say'&&this.spc){const p=this.spr.pct;this.grade(this.spc,p>=80?2:p>=50?1:0);this.rSide()}
+  };
+  r.onerror=e=>{this.rec=null;this.spRender();
+    this.toast(e.error==='not-allowed'?'Нужно разрешить микрофон':e.error==='no-speech'?'Не услышала — попробуй ещё':'Ошибка распознавания')};
+  r.onend=()=>{if(this.rec){this.rec=null;this.spRender()}};
+  try{r.start()}catch(e){this.rec=null;this.spRender()}
+},
+spRender(){
+  const box=$('spBox'),btns=$('spBtns'),meta=$('spMeta');
+  if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){
+    box.innerHTML='<div class="pr" style="font-size:20px">Этот браузер не распознаёт речь</div><div class="heard">Открой платформу в Safari на айфоне или в Chrome на ноутбуке — там работает.</div>';
+    btns.innerHTML='';meta.textContent='';return;
+  }
+  if(!this.spc){
+    box.innerHTML='<div class="pr" style="font-size:20px">Очередь пуста</div><div class="heard">Добавь слова с примерами — они и станут материалом для говорения.</div>';
+    btns.innerHTML='<button class="btn" onclick="APP.spBuild()">Ещё раз</button>';meta.textContent='';return;
+  }
+  const w=this.spc,say=this.spm==='say';
+  meta.textContent=`${say?'скажи фразу по-английски':'прочитай вслух'} · осталось ${this.spq.length}`;
+  const tgt=this.spr?`<div class="pr tgt">${this.spr.words.map((x,i)=>`<span class="${this.spr.marks[i]?'hit':'miss'}">${esc(x)}</span>`).join(' ')}</div>`:'';
+  box.innerHTML=(this.spr?tgt+`<div class="heard">услышала: ${esc(this.spr.said)}</div>
+      <div class="score" style="color:${this.spr.pct>=80?'#5FD39A':this.spr.pct>=50?'var(--gold-br)':'#E8737C'}">${this.spr.pct}% попадание${say?' · повторение засчитано':''}</div>`
+    :say?`<div class="lbl" style="font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)">${esc(w.ru)}</div>
+          <div class="pr ru">${esc(w.ex.replace(new RegExp(String(w.en).replace(/^to\s+/,'').replace(/[.*+?^$()|[\]\\]/g,'\\$&'),'i'),'…'))}</div>
+          <div class="heard">Скажи это предложение целиком, вставив нужное слово</div>`
+      :`<div class="pr">${esc(w.ex)}</div><div class="heard">Прочитай вслух, копируя интонацию</div>`)
+    +`<button class="mic ${this.rec?'rec':''}" onclick="APP.listen()">${this.rec?'■':'●'}</button>
+      <div class="score" style="color:var(--faint)">${this.rec?'говори…':'нажми и говори'}</div>`;
+  btns.innerHTML=`<button class="btn" onclick="APP.say('${esc(w.ex).replace(/'/g,"\\'")}')">◁) Эталон</button>
+    ${this.spr?'<button class="btn" onclick="APP.spr=null;APP.spRender()">Ещё раз</button>':''}
+    <button class="btn p" onclick="APP.spNext()">Дальше</button>`;
 },
 /* ---------- читалка ---------- */
 newText(){this.S.tcur=null;$('rdBody').value='';this.save();this.rRead();window.scrollTo(0,0)},
