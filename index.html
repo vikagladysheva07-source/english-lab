@@ -26,24 +26,24 @@ button{cursor:pointer}
 ::-webkit-scrollbar-thumb{background:rgba(155,111,232,.22);border-radius:7px}
 :focus-visible{outline:1.5px solid var(--pur);outline-offset:2px}
 
-.app{display:grid;grid-template-columns:206px 1fr;min-height:100vh}
-.side{border-right:1px solid var(--line);padding:24px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:22px}
-.brand{font-weight:900;font-size:15px;letter-spacing:.14em;text-transform:uppercase;padding:0 8px;color:var(--ink)}
+.app{min-height:100vh}
+.top{position:sticky;top:0;z-index:30;background:rgba(7,7,13,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.top .in{max-width:1000px;margin:0 auto;padding:0 26px;height:58px;display:flex;align-items:center;gap:20px}
+.brand{font-weight:900;font-size:13.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);background:none;border:0;padding:0;flex:0 0 auto;white-space:nowrap}
 .brand b{color:var(--pur-br);font-weight:900}
-.nav{display:flex;flex-direction:column;gap:1px}
-.nav button{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:0;padding:9px 10px;border-radius:8px;color:var(--dim);font-size:13.5px;font-weight:500;transition:.14s}
-.nav button:hover{color:var(--ink);background:var(--s1)}
+.nav{display:flex;gap:2px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.nav::-webkit-scrollbar{display:none}
+.nav button{display:flex;align-items:center;gap:6px;background:none;border:0;padding:7px 11px;border-radius:8px;color:var(--dim);font-size:13px;font-weight:500;white-space:nowrap;transition:.14s}
+.nav button:hover{color:var(--ink)}
 .nav button.on{color:var(--ink);background:var(--s2)}
-.nav .cnt{font-family:var(--mono);font-size:10px;color:var(--pur-br)}
-.side .push{margin-top:auto;display:flex;flex-direction:column;gap:10px}
-.mini{padding:0 10px;display:flex;justify-content:space-between;align-items:baseline}
-.mini .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
-.mini .v{font-family:var(--mono);font-size:12px;color:var(--ink)}
-.prog{height:2px;background:var(--s3);margin:0 10px;border-radius:2px;overflow:hidden}
-.prog i{display:block;height:100%;background:var(--pur);transition:width .4s}
+.nav .cnt{font-family:var(--mono);font-size:9.5px;color:var(--pur-br)}
+.tstat{display:flex;align-items:center;gap:15px;flex:0 0 auto}
+.tstat .m{font-family:var(--mono);font-size:11px;color:var(--faint);white-space:nowrap;font-variant-numeric:tabular-nums}
+.tstat .m b{color:var(--ink);font-weight:400}
+.tstat .p{width:54px;height:2px;background:var(--s3);border-radius:2px;overflow:hidden}
+.tstat .p i{display:block;height:100%;background:var(--pur);transition:width .4s}
 
-.main{padding:34px 38px 100px;max-width:920px}
-.mtop{display:none}
+.main{padding:30px 26px 100px;max-width:1000px;margin:0 auto}
 h1{font-size:30px;font-weight:900;letter-spacing:-1.4px;text-transform:uppercase;margin:0;line-height:1;text-wrap:balance}
 h1 span{color:var(--pur-br)}
 .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
@@ -191,12 +191,9 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 @media(max-width:520px){.tiles{grid-template-columns:1fr}.tile{aspect-ratio:16/8}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 @media(max-width:880px){
-  .app{grid-template-columns:1fr}
-  .side{position:fixed;z-index:60;width:206px;left:-216px;transition:left .2s;background:var(--bg)}
-  .side.open{left:0}
-  .main{padding:14px 15px 100px}
-  .mtop{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-  .mtop button{background:var(--s1);border:1px solid var(--line);border-radius:8px;width:36px;height:36px}
+  .top .in{padding:0 15px;height:52px;gap:12px}
+  .main{padding:18px 15px 100px}
+  .tstat .p,.tstat .m:first-child{display:none}
   .g4,.g3{grid-template-columns:1fr 1fr}
   .dl{grid-template-columns:1fr;gap:1px}
   .dl dt{padding-top:10px}
@@ -205,8 +202,8 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 </style>
 
 <div class="app">
-<aside class="side" id="side">
-  <div class="brand">English <b>Lab</b></div>
+<header class="top"><div class="in">
+  <button class="brand" onclick="APP.go('home')">English <b>Lab</b></button>
   <nav class="nav" id="nav">
     <button data-v="home" class="on">Главная</button>
     <button data-v="today">Сегодня<span class="cnt" id="nToday"></span></button>
@@ -217,15 +214,14 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
     <button data-v="prog">Прогресс</button>
     <button data-v="set">Настройки</button>
   </nav>
-  <div class="push">
-    <div class="mini"><span class="k">Streak</span><span class="v" id="nStreak">0</span></div>
-    <div class="mini"><span class="k">День</span><span class="v" id="nDay">0/90</span></div>
-    <div class="prog"><i id="nBar"></i></div>
+  <div class="tstat">
+    <span class="m" id="nStreak"></span>
+    <span class="m" id="nDay"></span>
+    <span class="p"><i id="nBar"></i></span>
   </div>
-</aside>
+</div></header>
 
 <main class="main">
-<div class="mtop"><button onclick="document.getElementById('side').classList.toggle('open')">☰</button><div class="brand" style="padding:0">English <b>Lab</b></div></div>
 
 <section class="view on" id="v-home">
   <div class="hero">
@@ -697,7 +693,7 @@ go(v,b){
   this.view=v;
   document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===(b||document.querySelector(`#nav [data-v=${v}]`))));
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
-  document.getElementById('side').classList.remove('open');window.scrollTo(0,0);
+  window.scrollTo(0,0);
   if(v==='drill')this.build();
   this.all();
 },
@@ -821,8 +817,8 @@ all(){this.rSide();this.rHome();this.rToday();this.rPlan();this.rWords();this.rR
 
 rSide(){
   const i=this.idx(iso(new Date()))+1;
-  document.getElementById('nStreak').textContent=this.streak();
-  document.getElementById('nDay').textContent=Math.max(0,Math.min(90,i))+'/90';
+  document.getElementById('nStreak').innerHTML='streak <b>'+this.streak()+'</b>';
+  document.getElementById('nDay').innerHTML='день <b>'+Math.max(0,Math.min(90,i))+'/90</b>';
   document.getElementById('nBar').style.width=Math.max(0,Math.min(100,i/90*100))+'%';
   document.getElementById('nWords').textContent=this.S.words.length;
   document.getElementById('nDue').textContent=this.dueToday().length||'';
