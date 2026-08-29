@@ -849,7 +849,6 @@ rHome(){
   $('hStreak').textContent=this.streak();
   $('hDue').textContent=this.dueToday().length;
   $('hLeft').textContent=left;
-  const memo=this.S.words.filter(x=>x.box>=3).length, act=Object.keys(this.S.days).filter(d=>this.doneD(d)).length;
   const T2=[
     ['today','Сегодня',left?`${left} из ${T.length} задач`:'всё закрыто'],
     ['plan','План 90 дней',`неделя ${this.week(t)} · ${w.vocab.toLowerCase()}`],
@@ -858,7 +857,8 @@ rHome(){
     ['res','Ресурсы',`${RES.length} источников`],
     ['prog','Прогресс',`${act} активных дней из 90`]];
   // дашборд
-  const act=Object.keys(this.S.days).filter(d=>this.doneD(d)).length,
+  const memo=this.S.words.filter(x=>x.box>=3).length,
+        act=Object.keys(this.S.days).filter(d=>this.doneD(d)).length,
         mins=Object.values(this.S.days).reduce((a,x)=>a+(x.min||0),0),
         mast=this.S.words.filter(x=>x.box>=5).length,
         pct=Math.max(0,Math.min(100,Math.round((i+1)/90*100)));
