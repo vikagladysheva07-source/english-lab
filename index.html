@@ -183,8 +183,10 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 @media(max-width:880px){
   .tiles{grid-template-columns:1fr 1fr;gap:9px}
   .tile{aspect-ratio:16/12}
-  .hero{min-height:230px}.hero .in{padding:20px}
-  .hstat{gap:20px}
+  .hero{min-height:300px}.hero .in{padding:22px 20px 24px}
+  .hero .scrim{background:linear-gradient(180deg,rgba(7,7,13,.42) 0%,rgba(7,7,13,.72) 42%,rgba(7,7,13,.94) 100%)}
+  .hero .sub{margin-bottom:22px;max-width:none}
+  .hstat{display:grid;grid-template-columns:1fr 1fr;gap:16px 14px}
 }
 @media(max-width:520px){.tiles{grid-template-columns:1fr}.tile{aspect-ratio:16/8}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
