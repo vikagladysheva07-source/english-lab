@@ -1086,14 +1086,31 @@ del(id){const w=this.S.words.find(x=>x.id===id);
   this.S.words=this.S.words.filter(x=>x.id!==id);this.save();this.rWords();this.rSide()},
 
 /* ---------- тренажёр ---------- */
+rx(x){return String(x).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')},
+blank(w){
+  const ex=w.ex||'';if(!ex)return null;
+  const base=String(w.en||'').toLowerCase().replace(/^to\s+/,'').replace(/\.\.\./g,'').trim();
+  if(!base)return null;
+  let re=new RegExp('\\b'+this.rx(base)+'\\b','i');
+  if(re.test(ex))return ex.replace(re,'____');
+  const parts=base.split(/\s+/).filter(p=>p.length>=3&&!this.STOP.has(p));
+  let out=ex,hit=0;
+  parts.forEach(p=>{
+    const stem=p.length>5?p.slice(0,p.length-2):p.length>3?p.slice(0,p.length-1):p;
+    const r2=new RegExp('\\b'+this.rx(stem)+"[a-z']*\\b",'i');
+    if(r2.test(out)){out=out.replace(r2,'____');hit++}
+  });
+  return hit?out:null;
+},
 build(){
   const M={due:()=>this.dueToday(),all:()=>this.S.words.slice(),hard:()=>this.S.words.filter(w=>w.lapses>0||w.box<=2),
-    ru:()=>this.dueToday(),type:()=>this.dueToday()};
+    ru:()=>this.dueToday(),type:()=>this.dueToday(),
+    cloze:()=>{const d=this.dueToday().filter(w=>this.blank(w));return d.length>=5?d:this.S.words.filter(w=>this.blank(w))}};
   this.queue=(M[this.mode]||M.due)().sort(()=>Math.random()-.5);this.next();
 },
 setMode(m){this.mode=m;this.build()},
 next(){this.card=this.queue.shift()||null;this.shown=false;this.right=null;this.rFlash()},
-show(){this.shown=true;this.rFlash();if(this.mode!=='ru')this.say(this.card.en)},
+show(){this.shown=true;this.rFlash();if(this.mode==='cloze')this.say(this.card.ex||this.card.en);else if(this.mode!=='ru')this.say(this.card.en)},
 checkType(){
   const v=document.getElementById('ti');if(!v)return;
   this.right=norm(v.value)===norm(this.card.en)||this.card.en.toLowerCase().split(/\s+/).slice(-1)[0]===norm(v.value);
@@ -1102,7 +1119,7 @@ checkType(){
 ans(g){if(!this.card)return;this.grade(this.card,g);this.next();this.rSide();this.rToday();this.rWords()},
 rFlash(){
   const f=document.getElementById('flash'),b=document.getElementById('flashBtns'),m=document.getElementById('dMeta');
-  const modes=[['due','к повтору'],['type','набрать'],['ru','ru → en'],['hard','сложные'],['all','все']];
+  const modes=[['due','к повтору'],['cloze','с пропуском'],['type','набрать'],['ru','ru → en'],['hard','сложные'],['all','все']];
   document.getElementById('dTabs').innerHTML=modes.map(([k,t])=>`<button class="${this.mode===k?'on':''}" onclick="APP.setMode('${k}')">${t}</button>`).join('');
   if(!this.card){
     f.innerHTML=`<div class="q" style="font-size:22px">Очередь пуста</div><div class="ex">${this.mode==='due'||this.mode==='type'?'На сегодня всё. Новые карточки откроются завтра — интервал работает, только если его не ломать.':'Выбери другой режим.'}</div>`;
@@ -1110,6 +1127,16 @@ rFlash(){
   }
   const w=this.card;
   m.textContent=`${w.tag} · неделя ${w.wk||'—'} · box ${w.box} · осталось ${this.queue.length}`;
+  if(this.mode==='cloze'){
+    const gap=this.blank(w);
+    f.innerHTML=`<div class="q" style="font-size:23px;font-weight:700;line-height:1.5;max-width:620px">${esc(gap).replace(/____/g,'<span style="color:var(--pur-br)">____</span>')}</div>`+
+      (this.shown?`<div class="a">${esc(w.en)}</div><div class="ex">${esc(w.ru)}</div>`
+        :`<div class="ex">Скажи предложение целиком, вставив пропущенное слово.</div>`);
+    b.innerHTML=this.shown
+      ?`<button class="btn" onclick="APP.ans(0)">Не вспомнила</button><button class="btn" onclick="APP.ans(1)">С трудом</button><button class="btn p" onclick="APP.ans(2)">Легко</button>`
+      :`<button class="btn p" onclick="APP.show()">Показать</button><button class="btn" onclick="APP.say('${esc(w.ex).replace(/'/g,"\\'")}')">◁) Фраза</button>`;
+    return;
+  }
   if(this.mode==='type'){
     f.innerHTML=`<div class="q" style="font-size:26px">${esc(w.ru)}</div>`+
       (this.shown
