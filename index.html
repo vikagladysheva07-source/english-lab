@@ -217,6 +217,23 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
   .hstat{display:grid;grid-template-columns:1fr 1fr;gap:16px 14px}
 }
 @media(max-width:520px){.tiles{grid-template-columns:1fr}.tile{aspect-ratio:16/8}}
+/* --- читалка --- */
+.rdtop{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.rdlist{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.rdlist button{background:var(--s1);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--dim);max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:.14s}
+.rdlist button:hover{color:var(--ink);border-color:var(--line-2)}
+.rdlist button.on{color:var(--ink);background:var(--s2);border-color:var(--line-2)}
+.reader{font-size:17px;line-height:1.85;max-width:660px;letter-spacing:.1px}
+.reader p{margin:0 0 16px}
+.w{cursor:pointer;border-radius:3px;padding:0 1px;transition:background .12s}
+.w:hover{background:rgba(155,111,232,.28)}
+.w.kn{border-bottom:1.5px solid rgba(155,111,232,.55)}
+.w.new{background:rgba(0,196,212,.1)}
+.hint{background:var(--s2);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13px;color:var(--dim);margin-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.hint b{color:var(--ink);font-weight:500}
+.look{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.look a{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--pur-br);text-decoration:none;border:1px solid var(--line);border-radius:7px;padding:5px 9px;transition:.14s}
+.look a:hover{border-color:var(--line-2);background:var(--s2)}
 /* --- редактор --- */
 .modal{position:fixed;inset:0;z-index:80;background:rgba(5,5,9,.72);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:6vh 16px 40px;overflow-y:auto}
 .modal.on{display:flex}
@@ -302,6 +319,18 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
       </div>
     </div>
   </section>
+</section>
+
+<section class="view" id="v-read">
+  <div class="hd"><div><div class="eyebrow" id="rdMeta">вставь текст — тапай незнакомые слова</div><h1>Читалка</h1></div>
+    <div class="row"><button class="btn xs" onclick="APP.newText()">+ Новый текст</button></div></div>
+  <div id="rdInput">
+    <textarea id="rdBody" style="min-height:150px" placeholder="Вставь сюда статью, субтитры, письмо — что угодно на английском"></textarea>
+    <div class="rdtop" style="margin-top:10px"><button class="btn p" onclick="APP.openText()">Открыть</button>
+      <span class="tag">до 20 000 знаков</span></div>
+  </div>
+  <div class="rdlist" id="rdList"></div>
+  <div class="reader" id="rdText"></div>
 </section>
 
 <section class="view" id="v-plan">
@@ -871,7 +900,7 @@ keys(e){
   else if(this.shown&&['1','2','3'].includes(e.key))this.ans(+e.key-1);
 },
 
-all(){this.rSide();this.rHome();this.rToday();this.rPlan();this.rWords();this.rRes();this.rProg();this.rSet()},
+all(){this.rSide();this.rHome();this.rToday();this.rRead();this.rPlan();this.rWords();this.rRes();this.rProg();this.rSet()},
 
 rSide(){},
 rHome(){
@@ -892,6 +921,7 @@ rHome(){
         act=Object.keys(this.S.days).filter(d=>this.doneD(d)).length;
   const T2=[
     ['plan','План',`цикл ${cy} · неделя ${this.week(t)} · ${w.vocab.toLowerCase()}`],
+    ['read','Читалка',`${(this.S.texts||[]).length?((this.S.texts||[]).length+' текстов'):'вставь текст и тапай слова'}`],
     ['words','Слова',`${this.S.words.length} всего · ${memo} в памяти`],
     ['drill','Тренажёр',`${this.dueToday().length} карточек сегодня`],
     ['res','Ресурсы',`${RES.length} источников`],
@@ -1143,6 +1173,86 @@ saveSet(){
   if(nw!==old){const sh=diffD(old,nw);this.S.words.forEach(w=>{if(w.reps===0)w.due=addD(w.due,sh)});this.S.start=nw;this.cur=iso(new Date())}
   this.save();this.all();this.toast('Сохранено');
 },
+/* ---------- читалка ---------- */
+newText(){this.S.tcur=null;$('rdBody').value='';this.save();this.rRead();window.scrollTo(0,0)},
+openText(){
+  const b=$('rdBody').value.trim();
+  if(b.length<20)return this.toast('Слишком короткий текст');
+  if(b.length>20000)return this.toast('Больше 20 000 знаков — раздели на части');
+  this.S.texts=this.S.texts||[];
+  const t={id:uid(),title:b.replace(/\s+/g,' ').slice(0,52),body:b};
+  this.S.texts.unshift(t);
+  if(this.S.texts.length>10)this.S.texts=this.S.texts.slice(0,10);
+  this.S.tcur=t.id;this.save();this.rRead();
+},
+delText(id,e){
+  if(e)e.stopPropagation();
+  this.S.texts=(this.S.texts||[]).filter(t=>t.id!==id);
+  if(this.S.tcur===id)this.S.tcur=null;
+  this.save();this.rRead();
+},
+known(){
+  if(!this._kn||this._knN!==this.S.words.length){
+    this._kn=new Set();this._knN=this.S.words.length;
+    this.S.words.forEach(w=>String(w.en).toLowerCase().split(/[^a-z']+/).forEach(p=>p.length>2&&this._kn.add(p)));
+  }
+  return this._kn;
+},
+rRead(){
+  const L=this.S.texts||[],cur=L.find(t=>t.id===this.S.tcur);
+  $('rdList').innerHTML=L.map(t=>`<button class="${t.id===this.S.tcur?'on':''}" onclick="APP.S.tcur='${t.id}';APP.save();APP.rRead()">${esc(t.title)}${t.id===this.S.tcur?' <span class="ico" onclick="APP.delText(\''+t.id+'\',event)">×</span>':''}</button>`).join('');
+  $('rdInput').style.display=cur?'none':'block';
+  if(!cur){$('rdText').innerHTML='';$('rdMeta').textContent='вставь текст — тапай незнакомые слова';return}
+  const kn=this.known();let total=0,seen=0;
+  const paras=cur.body.split(/\n{1,}/).filter(p=>p.trim());
+  this._sent=[];
+  const html=paras.map(p=>{
+    const sents=p.split(/(?<=[.!?…])\s+/);
+    return '<p>'+sents.map(sn=>{
+      const si=this._sent.push(sn.trim())-1;
+      return sn.split(/(\s+)/).map(tok=>{
+        if(/^\s+$/.test(tok)||!tok)return tok;
+        const word=tok.replace(/^[^A-Za-z']+|[^A-Za-z']+$/g,'');
+        if(!word)return esc(tok);
+        total++;const k=kn.has(word.toLowerCase());if(k)seen++;
+        const pre=tok.slice(0,tok.indexOf(word)),post=tok.slice(tok.indexOf(word)+word.length);
+        return esc(pre)+`<span class="w ${k?'kn':''}" onclick="APP.tapWord('${esc(word).replace(/'/g,"\\'")}',${si})">${esc(word)}</span>`+esc(post);
+      }).join('');
+    }).join(' ')+'</p>';
+  }).join('');
+  $('rdText').innerHTML=html;
+  $('rdMeta').textContent=`${total} слов · ${seen} уже в базе · подчёркнутые знаешь`;
+},
+async tapWord(word,si){
+  const w=word.toLowerCase(),sent=(this._sent||[])[si]||'';
+  const have=this.S.words.find(x=>String(x.en).toLowerCase()===w);
+  this.ed={kind:'newword'};
+  $('mTitle').textContent=have?'Это слово уже в базе':'Новое слово';
+  $('mBody').innerHTML=`
+    ${sent?`<div class="hint"><b>${esc(sent).replace(new RegExp('\\b'+w.replace(/[.*+?^$()|[\]\\]/g,'\\$&')+'\\b','i'),m=>`<span style="color:var(--pur-br)">${m}</span>`)}</b></div>`:''}
+    <div class="look">
+      <a href="https://www.ldoceonline.com/dictionary/${encodeURIComponent(w)}" target="_blank" rel="noopener">Longman</a>
+      <a href="https://context.reverso.net/translation/english-russian/${encodeURIComponent(w)}" target="_blank" rel="noopener">Reverso</a>
+      <a href="https://youglish.com/pronounce/${encodeURIComponent(w)}/english" target="_blank" rel="noopener">YouGlish</a>
+      <a href="#" onclick="event.preventDefault();APP.say('${esc(w).replace(/'/g,"\\'")}')">Озвучить</a>
+    </div>
+    <label class="mf"><span class="k">Слово</span><input id="mf_en" value="${esc(word)}"></label>
+    <label class="mf"><span class="k">Перевод</span><input id="mf_ru" value="${esc(have?have.ru:'')}" placeholder="напиши сама — так запомнится"></label>
+    <div class="hint" id="mmHint" style="display:none"></div>
+    <label class="mf"><span class="k">Пример</span><textarea id="mf_ex">${esc(sent)}</textarea></label>
+    <label class="mf"><span class="k">Тема</span><input id="mf_tag" value="из чтения"></label>`;
+  $('mReset').style.display='none';
+  $('modal').classList.add('on');
+  document.getElementById('mf_ru').focus();
+  try{
+    const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(w)+'&langpair=en|ru').then(x=>x.json());
+    const g=r&&r.responseData&&r.responseData.translatedText;
+    if(g&&this.ed&&this.ed.kind==='newword'){
+      const h=$('mmHint');h.style.display='flex';
+      h.innerHTML=`<span class="tag">машинный, проверь</span><b>${esc(g)}</b><button class="btn xs" onclick="document.getElementById('mf_ru').value=${JSON.stringify(g).replace(/"/g,'&quot;')}">подставить</button>`;
+    }
+  }catch(e){}
+},
 /* ---------- редактор ---------- */
 FIELDS:{
   word:[['en','Слово / фраза (EN)'],['ru','Перевод (RU)'],['ex','Пример в контексте','area'],['tag','Тема']],
@@ -1174,6 +1284,17 @@ closeEdit(){$('modal').classList.remove('on');this.ed=null},
 val(k){const e=document.getElementById('mf_'+k);return e?e.value.trim():''},
 saveEdit(){
   const {kind,id}=this.ed||{};if(!kind)return;
+  if(kind==='newword'){
+    const en=this.val('en'),ru=this.val('ru');
+    if(!en||!ru){this.toast('Нужен перевод');return}
+    const ex=this.val('ex'),tag=this.val('tag')||'из чтения';
+    const had=this.S.words.find(x=>String(x.en).toLowerCase()===en.toLowerCase());
+    if(had)Object.assign(had,{ru,ex,tag});
+    else this.S.words.push({id:uid(),en,ru,ex,tag,wk:this.week(iso(new Date())),box:1,due:iso(new Date()),reps:0,lapses:0});
+    this._kn=null;
+    this.save();this.closeEdit();this.rRead();this.rHome();this.rWords();
+    this.toast(had?'Обновлено':'Добавлено в базу');return;
+  }
   if(kind==='word'){const w=this.S.words.find(x=>x.id===id);if(w)['en','ru','ex','tag'].forEach(k=>w[k]=this.val(k))}
   else if(kind==='res'){
     const o={};['n','u','d','cat'].forEach(k=>o[k]=this.val(k));
@@ -1257,6 +1378,8 @@ merge(a,b){
   const m={v:2,start:nw.start||a.start,mins:nw.mins||a.mins,best:Math.max(a.best||0,b.best||0),
     days:{},words:[],res:[],checks:{},fav:{},del:[...new Set([...(a.del||[]),...(b.del||[])])],t:Math.max(a.t||0,b.t||0)};
   ['wover','rover','rhide','tover','thide','tadd'].forEach(f=>{m[f]=Object.assign({},old[f]||{},nw[f]||{})});
+  const tx=new Map();[...(a.texts||[]),...(b.texts||[])].forEach(t=>tx.set(t.id,t));
+  m.texts=[...tx.values()].slice(0,10);m.tcur=nw.tcur;
   new Set([...Object.keys(a.days||{}),...Object.keys(b.days||{})]).forEach(d=>{
     const x=(a.days||{})[d]||{},y=(b.days||{})[d]||{},tk={};
     new Set([...Object.keys(x.tasks||{}),...Object.keys(y.tasks||{})]).forEach(k=>{if((x.tasks||{})[k]||(y.tasks||{})[k])tk[k]=true});
