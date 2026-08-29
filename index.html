@@ -658,7 +658,7 @@ const addD=(s,n)=>{const d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);retu
 const diffD=(a,b)=>Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5);
 const uid=()=>Math.random().toString(36).slice(2,10);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const $=i=>document.getElementById(i)||{value:'',textContent:'',style:{},classList:{toggle(){},add(){},remove(){}}};
+const $=i=>document.getElementById(i)||{value:'',textContent:'',innerHTML:'',style:{setProperty(){}},classList:{toggle(){},add(){},remove(){}}};
 const norm=s=>s.toLowerCase().replace(/[^a-zа-яё0-9 ]/gi,'').replace(/\s+/g,' ').trim();
 
 const APP={
