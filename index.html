@@ -217,6 +217,18 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
   .hstat{display:grid;grid-template-columns:1fr 1fr;gap:16px 14px}
 }
 @media(max-width:520px){.tiles{grid-template-columns:1fr}.tile{aspect-ratio:16/8}}
+/* --- редактор --- */
+.modal{position:fixed;inset:0;z-index:80;background:rgba(5,5,9,.72);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:6vh 16px 40px;overflow-y:auto}
+.modal.on{display:flex}
+.mbox{background:var(--s1);border:1px solid var(--line-2);border-radius:14px;padding:22px;width:100%;max-width:540px}
+.mbox h3{font-size:16px;font-weight:700;margin:0 0 16px;letter-spacing:-.3px}
+.mf{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.mf .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.mact{display:flex;gap:8px;align-items:center;margin-top:18px;flex-wrap:wrap}
+.mact .rt{margin-left:auto}
+.edit{opacity:0;transition:.14s}
+.task:hover .edit,.res:hover .edit{opacity:1}
+.wcard .edit{opacity:.5}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 @media(max-width:880px){
   .top .in{padding:0 15px;height:52px;gap:12px}
@@ -266,6 +278,7 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
         <button class="btn xs" onclick="APP.move(-1)">←</button>
         <button class="btn xs" onclick="APP.move(1)">→</button>
         <button class="btn xs" id="tNow" onclick="APP.move(0)">Сегодня</button>
+        <button class="btn xs" onclick="APP.addTask()">+ задача</button>
       </div>
     </div>
     <div id="tTasks"></div>
@@ -386,6 +399,14 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 </section>
 </main>
 </div>
+<div class="modal" id="modal" onclick="if(event.target===this)APP.closeEdit()"><div class="mbox">
+  <h3 id="mTitle"></h3><div id="mBody"></div>
+  <div class="mact">
+    <button class="btn p" onclick="APP.saveEdit()">Сохранить</button>
+    <button class="btn" onclick="APP.closeEdit()">Отмена</button>
+    <button class="btn rt" id="mReset" onclick="APP.resetEdit()">Вернуть исходное</button>
+  </div>
+</div></div>
 <div class="toast" id="toast"></div>
 <div class="tmr" id="tmr"><span class="t" id="tmrT">00:00</span><span class="l" id="tmrL"></span><button class="btn xs" onclick="APP.stopTimer()">Стоп</button></div>
 
@@ -713,7 +734,14 @@ day(d){if(!this.S.days[d])this.S.days[d]={tasks:{},note:'',min:0};return this.S.
 idx(d){return diffD(this.S.start,d||this.cur)},
 week(d){return ((Math.max(0,Math.floor(this.idx(d)/7)))%12)+1},
 cycle(d){return Math.floor(Math.max(0,Math.floor(this.idx(d)/7))/12)+1},
-wk(d){return WEEKS[this.week(d)-1]},
+wkN(n){const w=WEEKS[n-1],o=(this.S.wover||{})[n];return o?Object.assign({},w,o):w},
+wk(d){return this.wkN(this.week(d))},
+resList(){
+  const ov=this.S.rover||{},hd=this.S.rhide||{};
+  const base=RES.map(r=>({id:r[2],cat:r[0],k:r[1],n:r[2],u:r[3],d:r[4],own:0}));
+  const mine=(this.S.res||[]).map(r=>({id:r.id||r.n,cat:r.cat,k:r.k||'MY',n:r.n,u:r.u,d:r.d,own:1}));
+  return base.concat(mine).filter(r=>!hd[r.id]).map(r=>ov[r.id]?Object.assign({},r,ov[r.id]):r);
+},
 go(v,b){
   this.view=v;
   $('back').classList.toggle('on',v!=='home');
@@ -738,7 +766,7 @@ tasks(date){
     a(2,10,'Первые 10 слов','Вкладка «Слова», прочитай вслух с примерами.');
     a(3,10,'Выбери по одному ресурсу из категории','Один учебник, один подкаст, один сериал. Не десять.');
     a(4,20,'Поставь якорь в календаре','Одно время каждый день.');
-    return this.trim(T);
+    return this.apply(T,date);
   }
   a(1,10,`Повтор слов · ${due}`,'Сначала скажи ответ вслух, потом открывай.');
 
@@ -784,7 +812,12 @@ tasks(date){
     a(3,5,'Посмотреть план следующей недели','');
     if(w.check)a(1,45,`Контроль ${w.check}`,'Раздел «Прогресс» — пройди все пункты.');
   }
-  return this.trim(T);
+  return this.apply(T,date);
+},
+apply(T,date){
+  const ov=this.S.tover||{},hd=this.S.thide||{};
+  const out=this.trim(T).filter(t=>!hd[t.id]).map(t=>ov[t.id]?Object.assign({},t,ov[t.id]):t);
+  return out.concat(((this.S.tadd||{})[date]||[]));
 },
 trim(T){
   const cap={30:1,45:2,60:3,90:4}[this.S.mins]||3,bud=this.S.mins*1.2,o=[];let s=0;
@@ -909,6 +942,8 @@ rToday(){
         <span class="tag">${t.min}м</span>
         <button class="ico" title="Таймер" onclick="APP.startTimer(${t.min},'${esc(t.t).replace(/'/g,'')}')">▷</button>
         ${t.d?`<button class="ico ${open[t.id]?'on':''}" title="Подробно" onclick="APP.info('${t.id}')">i</button>`:''}
+        <button class="ico edit" title="Изменить" onclick="APP.edit('task','${t.id}',event)">✎</button>
+        <button class="ico edit" title="Убрать" onclick="APP.delTask('${t.id}',event)">×</button>
       </div>
     </div>${t.d?`<div class="tsub ${open[t.id]?'on':''}">${esc(t.d)}</div>`:''}`).join('');
 },
@@ -935,12 +970,13 @@ rPlan(){
         <span class="phn">${done} из ${ws.length}</span>
       </div>
       <p class="phd">${esc(p.d)}</p>
-      <div class="wks">${ws.map(w=>{
+      <div class="wks">${ws.map(w0=>{ const w=this.wkN(w0.n);
         const st=w.n<cw?'done':w.n===cw?'now':'';
         return `<button class="wcard ${st} ${w.n===cw?'open':''}" id="wk${w.n}" onclick="this.classList.toggle('open')">
           <div class="wtop">
             <span class="wnum">НЕД ${String(w.n).padStart(2,'0')}</span>
             <span class="wttl">${esc(w.t)}</span>
+            <span class="ico edit" title="Изменить" onclick="APP.edit('week','${w.n}',event)">✎</span>
             <span class="wchev">▾</span>
           </div>
           <div class="wgap">${esc(w.gap)}</div>
@@ -969,6 +1005,7 @@ rWords(){
   document.getElementById('wList').innerHTML=L.length?L.map(w=>`
     <div class="word"><div class="wa">
       <button class="ico" title="Озвучить" onclick="APP.say('${esc(w.en).replace(/'/g,"\\'")}')">◁)</button>
+      <button class="ico" title="Изменить" onclick="APP.edit('word','${w.id}')">✎</button>
       <button class="ico" title="Удалить" onclick="APP.del('${w.id}')">×</button></div>
       <div class="en">${esc(w.en)}</div><div class="ru">${esc(w.ru)}</div>
       ${w.ex?`<div class="ex">${esc(w.ex)}</div>`:''}<div class="bxn">${w.box}</div></div>`).join('')
@@ -1039,22 +1076,27 @@ rFlash(){
 },
 
 rRes(){
-  const s=document.getElementById('rC');if(!s.options.length)s.innerHTML=RCAT.map(c=>`<option>${c}</option>`).join('');
-  document.getElementById('rTabs').innerHTML=`<button class="${this.rTab==='fav'?'on':''}" onclick="APP.rTab='fav';APP.rRes()">★ мои</button>`+
+  const sel=$('rC');if(!sel.options.length)sel.innerHTML=RCAT.map(c=>`<option>${c}</option>`).join('');
+  $('rTabs').innerHTML=`<button class="${this.rTab==='fav'?'on':''}" onclick="APP.rTab='fav';APP.rRes()">★ мои</button>`+
     RCAT.map(c=>`<button class="${this.rTab===c?'on':''}" onclick="APP.rTab='${c}';APP.rRes()">${c.toLowerCase()}</button>`).join('');
-  const all=[...RES.map(r=>({cat:r[0],k:r[1],n:r[2],u:r[3],d:r[4]})),...this.S.res];
+  const all=this.resList();
   const L=this.rTab==='fav'?all.filter(r=>this.S.fav[r.n]):all.filter(r=>r.cat===this.rTab);
-  document.getElementById('rList').innerHTML=L.length?L.map(r=>`
+  const hidden=Object.keys(this.S.rhide||{}).length;
+  $('rList').innerHTML=(L.length?L.map(r=>`
     <div class="res"><span class="kk">${esc(r.k||'MY')}</span><div style="flex:1">
       ${r.u?`<a href="${esc(r.u)}" target="_blank" rel="noopener">${esc(r.n)}</a>`:`<span style="font-weight:500">${esc(r.n)}</span>`}
       <div class="d">${esc(r.d)}</div></div>
-      <button class="ico ${this.S.fav[r.n]?'on':''}" title="В мои" onclick="APP.fav('${esc(r.n).replace(/'/g,"\\'")}')">${this.S.fav[r.n]?'★':'☆'}</button></div>`).join('')
-    :'<div class="empty">Отметь звёздочкой то, чем реально пользуешься.</div>';
+      <button class="ico ${this.S.fav[r.n]?'on':''}" title="В мои" onclick="APP.fav('${esc(r.n).replace(/'/g,"\\'")}')">${this.S.fav[r.n]?'★':'☆'}</button>
+      <button class="ico edit" title="Изменить" onclick="APP.edit('res','${esc(r.id).replace(/'/g,"\\'")}')">✎</button>
+      <button class="ico edit" title="Убрать" onclick="APP.delRes('${esc(r.id).replace(/'/g,"\\'")}',event)">×</button>
+    </div>`).join('')
+    :'<div class="empty">Пусто. Отметь звёздочкой то, чем реально пользуешься.</div>')
+    +(hidden?`<div class="row" style="margin-top:14px"><span class="tag">скрыто ${hidden}</span><button class="btn xs" onclick="APP.restoreRes()">Вернуть скрытые</button></div>`:'');
 },
 fav(n){this.S.fav[n]=!this.S.fav[n];this.save();this.rRes()},
 addRes(){
   const n=$('rN').value.trim();if(!n)return this.toast('Нужно название');
-  this.S.res.push({cat:$('rC').value,k:'MY',n,u:$('rU').value.trim(),d:'моё'});
+  this.S.res.push({id:uid(),cat:$('rC').value,k:'MY',n,u:$('rU').value.trim(),d:'моё'});
   $('rN').value=$('rU').value='';this.save();this.rRes();this.toast('Добавлено');
 },
 
@@ -1101,6 +1143,84 @@ saveSet(){
   if(nw!==old){const sh=diffD(old,nw);this.S.words.forEach(w=>{if(w.reps===0)w.due=addD(w.due,sh)});this.S.start=nw;this.cur=iso(new Date())}
   this.save();this.all();this.toast('Сохранено');
 },
+/* ---------- редактор ---------- */
+FIELDS:{
+  word:[['en','Слово / фраза (EN)'],['ru','Перевод (RU)'],['ex','Пример в контексте','area'],['tag','Тема']],
+  res :[['n','Название'],['u','Ссылка'],['d','Описание','area'],['cat','Категория','sel']],
+  week:[['t','Название недели'],['gap','Какую дыру закрываем','area'],['gram','Грамматика — по теме в строке','area'],
+        ['vocab','Лексика'],['tag','Тег лексики'],['input','Ввод'],['output','Продукция','area'],['test','Проверка','area']],
+  task:[['t','Задача'],['d','Пояснение','area'],['min','Минут','num']]
+},
+edit(kind,id,e){
+  if(e)e.stopPropagation();
+  let v={};
+  if(kind==='word')v=this.S.words.find(w=>w.id===id)||{};
+  else if(kind==='res')v=this.resList().find(r=>r.id===id)||{};
+  else if(kind==='week'){const w=this.wkN(+id);v=Object.assign({},w,{gram:(w.gram||[]).join('\n')})}
+  else if(kind==='task'){const t=this.tasks(this.cur).find(x=>x.id===id)||{};v=Object.assign({},t)}
+  this.ed={kind,id};
+  $('mTitle').textContent={word:'Слово',res:'Ресурс',week:'Неделя плана',task:'Задача дня'}[kind];
+  $('mBody').innerHTML=this.FIELDS[kind].map(([k,label,type])=>{
+    const val=esc(v[k]==null?'':v[k]);
+    const inp=type==='area'?`<textarea id="mf_${k}">${val}</textarea>`
+      :type==='num'?`<input id="mf_${k}" type="number" min="1" max="180" value="${val}">`
+      :type==='sel'?`<select id="mf_${k}">${RCAT.map(c=>`<option${c===v[k]?' selected':''}>${c}</option>`).join('')}</select>`
+      :`<input id="mf_${k}" value="${val}">`;
+    return `<label class="mf"><span class="k">${label}</span>${inp}</label>`}).join('');
+  $('mReset').style.display=(kind==='week'||kind==='res'||kind==='task')?'':'none';
+  $('modal').classList.add('on');
+},
+closeEdit(){$('modal').classList.remove('on');this.ed=null},
+val(k){const e=document.getElementById('mf_'+k);return e?e.value.trim():''},
+saveEdit(){
+  const {kind,id}=this.ed||{};if(!kind)return;
+  if(kind==='word'){const w=this.S.words.find(x=>x.id===id);if(w)['en','ru','ex','tag'].forEach(k=>w[k]=this.val(k))}
+  else if(kind==='res'){
+    const o={};['n','u','d','cat'].forEach(k=>o[k]=this.val(k));
+    const own=(this.S.res||[]).find(r=>(r.id||r.n)===id);
+    if(own)Object.assign(own,o); else {this.S.rover=this.S.rover||{};this.S.rover[id]=o}
+  }
+  else if(kind==='week'){
+    const o={};['t','gap','vocab','tag','input','output','test'].forEach(k=>o[k]=this.val(k));
+    o.gram=this.val('gram').split('\n').map(x=>x.trim()).filter(Boolean);
+    this.S.wover=this.S.wover||{};this.S.wover[id]=o;
+  }
+  else if(kind==='task'){
+    const o={t:this.val('t'),d:this.val('d'),min:Math.max(1,+this.val('min')||10)};
+    const own=((this.S.tadd||{})[this.cur]||[]).find(x=>x.id===id);
+    if(own)Object.assign(own,o); else {this.S.tover=this.S.tover||{};this.S.tover[id]=o}
+  }
+  this.save();this.closeEdit();this.all();this.toast('Сохранено');
+},
+resetEdit(){
+  const {kind,id}=this.ed||{};if(!kind)return;
+  if(kind==='week'&&this.S.wover)delete this.S.wover[id];
+  if(kind==='res'&&this.S.rover)delete this.S.rover[id];
+  if(kind==='task'&&this.S.tover)delete this.S.tover[id];
+  this.save();this.closeEdit();this.all();this.toast('Вернула исходное');
+},
+addTask(){
+  this.S.tadd=this.S.tadd||{};const l=this.S.tadd[this.cur]=this.S.tadd[this.cur]||[];
+  const t={id:this.cur+'#c'+uid(),t:'Своя задача',d:'',min:15,pri:1,own:1};
+  l.push(t);this.save();this.rToday();this.rHome();this.edit('task',t.id);
+},
+delTask(id,e){
+  if(e)e.stopPropagation();
+  const l=(this.S.tadd||{})[this.cur];
+  if(l&&l.some(x=>x.id===id))this.S.tadd[this.cur]=l.filter(x=>x.id!==id);
+  else {this.S.thide=this.S.thide||{};this.S.thide[id]=true}
+  const st=this.day(this.cur);delete st.tasks[id];
+  this.save();this.rToday();this.rHome();
+},
+delRes(id,e){
+  if(e)e.stopPropagation();
+  const own=(this.S.res||[]).find(r=>(r.id||r.n)===id);
+  if(own)this.S.res=this.S.res.filter(r=>(r.id||r.n)!==id);
+  else {this.S.rhide=this.S.rhide||{};this.S.rhide[id]=true}
+  this.save();this.rRes();this.toast('Убрано');
+},
+restoreRes(){this.S.rhide={};this.S.rover={};this.save();this.rRes();this.toast('Список восстановлен')},
+
 /* ---------- синхронизация ---------- */
 syncOff(){delete this.S.sync;this.save();this.rSet();this.toast('Синхронизация отключена')},
 async rpc(fn,body){
@@ -1133,9 +1253,10 @@ syncErr(e,loud){
 },
 strip(){const o={};for(const k in this.S)if(k!=='sync')o[k]=this.S[k];return o},
 merge(a,b){
-  const nw=(b.t||0)>(a.t||0)?b:a;
+  const nw=(b.t||0)>(a.t||0)?b:a, old=nw===b?a:b;
   const m={v:2,start:nw.start||a.start,mins:nw.mins||a.mins,best:Math.max(a.best||0,b.best||0),
     days:{},words:[],res:[],checks:{},fav:{},del:[...new Set([...(a.del||[]),...(b.del||[])])],t:Math.max(a.t||0,b.t||0)};
+  ['wover','rover','rhide','tover','thide','tadd'].forEach(f=>{m[f]=Object.assign({},old[f]||{},nw[f]||{})});
   new Set([...Object.keys(a.days||{}),...Object.keys(b.days||{})]).forEach(d=>{
     const x=(a.days||{})[d]||{},y=(b.days||{})[d]||{},tk={};
     new Set([...Object.keys(x.tasks||{}),...Object.keys(y.tasks||{})]).forEach(k=>{if((x.tasks||{})[k]||(y.tasks||{})[k])tk[k]=true});
