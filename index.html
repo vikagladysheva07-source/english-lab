@@ -234,6 +234,26 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 .look{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
 .look a{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--pur-br);text-decoration:none;border:1px solid var(--line);border-radius:7px;padding:5px 9px;transition:.14s}
 .look a:hover{border-color:var(--line-2);background:var(--s2)}
+/* --- контрольная --- */
+.tprog{height:2px;background:var(--s3);border-radius:2px;overflow:hidden;margin-bottom:20px}
+.tprog i{display:block;height:100%;background:var(--pur);transition:width .3s}
+.tbox{border:1px solid var(--line);border-radius:12px;padding:38px 26px;min-height:270px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:15px;text-align:center}
+.tbox .q{font-size:24px;font-weight:700;letter-spacing:-.5px;max-width:600px;line-height:1.45;text-wrap:balance}
+.tbox input{max-width:340px;text-align:center;font-size:17px;padding:12px}
+.tres{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:18px}
+.tres div{background:var(--bg);padding:11px 14px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.tres b{font-weight:700;font-size:14px}
+.tres span{color:var(--dim);font-size:13px}
+.tres .yours{color:#E8737C;font-size:12.5px;font-family:var(--mono)}
+.big{font-size:52px;font-weight:900;letter-spacing:-2.5px;line-height:1}
+/* --- варианты ответа --- */
+.opts{display:grid;gap:8px;width:100%;max-width:440px;margin-top:4px}
+.opt{border:1px solid var(--line);background:var(--s1);border-radius:10px;padding:13px 15px;font-size:14.5px;text-align:left;transition:.14s}
+.opt:hover{border-color:var(--line-2);background:var(--s2)}
+.opt.ok{border-color:#5FD39A;background:rgba(95,211,154,.1);color:#5FD39A}
+.opt.bad{border-color:#E8737C;background:rgba(232,115,124,.1);color:#E8737C}
+.opt:disabled{cursor:default}
+.lvl{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
 /* --- говорение --- */
 .sp{border:1px solid var(--line);border-radius:12px;padding:42px 26px;text-align:center;min-height:250px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px}
 .sp .pr{font-size:26px;font-weight:700;letter-spacing:-.6px;max-width:600px;line-height:1.4;text-wrap:balance}
@@ -334,6 +354,14 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
   </section>
 </section>
 
+<section class="view" id="v-test">
+  <div class="hd"><div><div class="eyebrow" id="tsMeta">проверка по твоим словам</div><h1>Контрольная</h1></div></div>
+  <div class="tprog" id="tsProg" style="display:none"><i id="tsProgI"></i></div>
+  <div class="tbox" id="tsBox"></div>
+  <div class="row" id="tsBtns" style="margin-top:14px;justify-content:center"></div>
+  <div id="tsRes"></div>
+</section>
+
 <section class="view" id="v-speak">
   <div class="hd"><div><div class="eyebrow" id="spMeta"></div><h1>Говорение</h1></div></div>
   <div class="tabs" id="spTabs">
@@ -415,6 +443,9 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
   <h2>Последние 30 дней · минут</h2>
   <div class="spark" id="pSpark"></div>
   <div class="sec"><h2 id="pCalH">Карта дней</h2><div class="cal" id="pCal"></div></div>
+  <div class="sec"><h2>Проверка себя</h2>
+    <div class="row"><button class="btn p" onclick="APP.go('test')">Пройти контрольную</button>
+      <span class="tag" id="pLastTest"></span></div></div>
   <div class="sec"><h2>Контрольные точки</h2><div id="pCheck"></div></div>
 </section>
 
@@ -740,7 +771,7 @@ const $=i=>document.getElementById(i)||{value:'',textContent:'',innerHTML:'',sty
 const norm=s=>s.toLowerCase().replace(/[^a-zа-яё0-9 ]/gi,'').replace(/\s+/g,' ').trim();
 
 const APP={
-S:null,view:'home',cur:iso(new Date()),mode:'due',spm:'say',queue:[],card:null,shown:false,wTab:'all',rTab:RCAT[0],tick:null,
+S:null,view:'home',cur:iso(new Date()),mode:'smart',spm:'say',queue:[],card:null,shown:false,wTab:'all',rTab:RCAT[0],tick:null,
 
 init(){
   try{this.S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
@@ -801,6 +832,7 @@ go(v,b){
   window.scrollTo(0,0);
   if(v==='drill')this.build();
   if(v==='speak')this.spBuild();
+  if(v==='test')this.rTest();
   this.all();
 },
 toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(this._t);this._t=setTimeout(()=>t.classList.remove('on'),1800)},
@@ -917,8 +949,10 @@ beep(){try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.cre
 keys(e){
   if(this.view!=='drill'||!this.card)return;
   const t=e.target.tagName;
-  if(t==='INPUT'&&this.mode==='type'){if(e.key==='Enter'){e.preventDefault();this.shown?this.next():this.checkType()}return}
+  const fmk=this.mode==='smart'&&this.card?this.fmt(this.card):this.mode;
+  if(t==='INPUT'&&fmk==='type'){if(e.key==='Enter'){e.preventDefault();this.shown?this.next():this.checkType()}return}
   if(t==='INPUT'||t==='TEXTAREA')return;
+  if(fmk==='mc'&&['1','2','3','4'].includes(e.key)&&!this.shown){e.preventDefault();this.mcAns(+e.key-1);return}
   if(e.code==='Space'){e.preventDefault();this.shown?this.next():this.show()}
   else if(e.key==='s'||e.key==='ы')this.say(this.card.en);
   else if(this.shown&&['1','2','3'].includes(e.key))this.ans(+e.key-1);
@@ -1086,6 +1120,29 @@ del(id){const w=this.S.words.find(x=>x.id===id);
   this.S.words=this.S.words.filter(x=>x.id!==id);this.save();this.rWords();this.rSide()},
 
 /* ---------- тренажёр ---------- */
+fmt(w){
+  const b=w.box||1;
+  if(b<=2)return 'mc';
+  if(b<=4)return this.blank(w)?'cloze':'mc';
+  return 'type';
+},
+mcOpts(w){
+  const pool=this.S.words.filter(x=>x.id!==w.id&&x.ru&&x.ru!==w.ru);
+  const pick=[];const used=new Set();
+  while(pick.length<3&&pool.length){
+    const c=pool[Math.floor(Math.random()*pool.length)];
+    if(!used.has(c.ru)){used.add(c.ru);pick.push(c.ru)}
+    else if(used.size>=pool.length)break;
+  }
+  return [w.ru,...pick].sort(()=>Math.random()-.5);
+},
+mcAns(i){
+  const w=this.card;if(!w||this.shown)return;
+  this.mcPick=i;this.shown=true;
+  const right=this.mcList[i]===w.ru;
+  this.grade(w,right?2:0);this.rFlash();this.rSide();
+  if(right)setTimeout(()=>{if(this.shown)this.next()},800);
+},
 rx(x){return String(x).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')},
 blank(w){
   const ex=w.ex||'';if(!ex)return null;
@@ -1104,13 +1161,13 @@ blank(w){
 },
 build(){
   const M={due:()=>this.dueToday(),all:()=>this.S.words.slice(),hard:()=>this.S.words.filter(w=>w.lapses>0||w.box<=2),
-    ru:()=>this.dueToday(),type:()=>this.dueToday(),
+    ru:()=>this.dueToday(),type:()=>this.dueToday(),smart:()=>this.dueToday(),
     cloze:()=>{const d=this.dueToday().filter(w=>this.blank(w));return d.length>=5?d:this.S.words.filter(w=>this.blank(w))}};
   this.queue=(M[this.mode]||M.due)().sort(()=>Math.random()-.5);this.next();
 },
 setMode(m){this.mode=m;this.build()},
-next(){this.card=this.queue.shift()||null;this.shown=false;this.right=null;this.rFlash()},
-show(){this.shown=true;this.rFlash();if(this.mode==='cloze')this.say(this.card.ex||this.card.en);else if(this.mode!=='ru')this.say(this.card.en)},
+next(){this.card=this.queue.shift()||null;this.shown=false;this.right=null;this.mcPick=null;this.mcList=null;this.rFlash()},
+show(){this.shown=true;this.rFlash();if(this.mode==='cloze'||(this.mode==='smart'&&this.fmt(this.card)==='cloze'))this.say(this.card.ex||this.card.en);else if(this.mode!=='ru')this.say(this.card.en)},
 checkType(){
   const v=document.getElementById('ti');if(!v)return;
   this.right=norm(v.value)===norm(this.card.en)||this.card.en.toLowerCase().split(/\s+/).slice(-1)[0]===norm(v.value);
@@ -1119,15 +1176,27 @@ checkType(){
 ans(g){if(!this.card)return;this.grade(this.card,g);this.next();this.rSide();this.rToday();this.rWords()},
 rFlash(){
   const f=document.getElementById('flash'),b=document.getElementById('flashBtns'),m=document.getElementById('dMeta');
-  const modes=[['due','к повтору'],['cloze','с пропуском'],['type','набрать'],['ru','ru → en'],['hard','сложные'],['all','все']];
+  const modes=[['smart','по уровню'],['due','к повтору'],['cloze','с пропуском'],['type','набрать'],['ru','ru → en'],['hard','сложные'],['all','все']];
   document.getElementById('dTabs').innerHTML=modes.map(([k,t])=>`<button class="${this.mode===k?'on':''}" onclick="APP.setMode('${k}')">${t}</button>`).join('');
   if(!this.card){
     f.innerHTML=`<div class="q" style="font-size:22px">Очередь пуста</div><div class="ex">${this.mode==='due'||this.mode==='type'?'На сегодня всё. Новые карточки откроются завтра — интервал работает, только если его не ломать.':'Выбери другой режим.'}</div>`;
     b.innerHTML='<button class="btn" onclick="APP.build()">Прогнать ещё раз</button>';m.textContent='';return;
   }
-  const w=this.card;
-  m.textContent=`${w.tag} · неделя ${w.wk||'—'} · box ${w.box} · осталось ${this.queue.length}`;
-  if(this.mode==='cloze'){
+  const w=this.card, fm=this.mode==='smart'?this.fmt(w):this.mode;
+  const lvl=this.mode==='smart'?({mc:'узнавание',cloze:'в контексте',type:'производство'})[fm]:'';
+  m.textContent=`${w.tag} · box ${w.box}${lvl?' · '+lvl:''} · осталось ${this.queue.length}`;
+  if(fm==='mc'){
+    if(!this.mcList)this.mcList=this.mcOpts(w);
+    f.innerHTML=`<div class="lvl">что это значит</div><div class="q">${esc(w.en)}</div>
+      <div class="opts">${this.mcList.map((o,i)=>{
+        const cls=!this.shown?'':o===w.ru?'ok':(i===this.mcPick?'bad':'');
+        return `<button class="opt ${cls}" ${this.shown?'disabled':''} onclick="APP.mcAns(${i})">${esc(o)}</button>`}).join('')}</div>
+      ${this.shown&&w.ex?`<div class="ex">${esc(w.ex)}</div>`:''}`;
+    b.innerHTML=this.shown?`<button class="btn p" onclick="APP.next()">Дальше</button>
+      <button class="btn" onclick="APP.say('${esc(w.en).replace(/'/g,"\\'")}')">◁)</button>`:'';
+    return;
+  }
+  if(fm==='cloze'){
     const gap=this.blank(w);
     f.innerHTML=`<div class="q" style="font-size:23px;font-weight:700;line-height:1.5;max-width:620px">${esc(gap).replace(/____/g,'<span style="color:var(--pur-br)">____</span>')}</div>`+
       (this.shown?`<div class="a">${esc(w.en)}</div><div class="ex">${esc(w.ru)}</div>`
@@ -1137,7 +1206,7 @@ rFlash(){
       :`<button class="btn p" onclick="APP.show()">Показать</button><button class="btn" onclick="APP.say('${esc(w.ex).replace(/'/g,"\\'")}')">◁) Фраза</button>`;
     return;
   }
-  if(this.mode==='type'){
+  if(fm==='type'){
     f.innerHTML=`<div class="q" style="font-size:26px">${esc(w.ru)}</div>`+
       (this.shown
         ?`<div class="a ${this.right?'ok':'no'}">${esc(w.en)}</div>${w.ex?`<div class="ex">${esc(w.ex)}</div>`:''}<div class="tag">${this.right?'верно':'мимо'}</div>`
@@ -1148,7 +1217,7 @@ rFlash(){
     const el=document.getElementById('ti');if(el)el.focus();
     return;
   }
-  const ru=this.mode==='ru';
+  const ru=fm==='ru';
   f.innerHTML=`<div class="q">${esc(ru?w.ru:w.en)}</div>`+
     (this.shown?`<div class="a">${esc(ru?w.en:w.ru)}</div>${w.ex?`<div class="ex">${esc(w.ex)}</div>`:''}`
       :`<div class="ex">Скажи ответ вслух, потом открывай.</div>`);
@@ -1197,6 +1266,8 @@ rProg(){
   let c='';for(let i=0;i<days;i++){const d=addD(this.S.start,i),x=this.S.days[d],n=x?Object.values(x.tasks||{}).filter(Boolean).length:0;
     c+=`<i class="${n>=5?'d3':n>=3?'d2':n>=1?'d1':''} ${d===t?'t':''}" title="${d} · ${n}"></i>`}
   document.getElementById('pCal').innerHTML=c;
+  const lt=(this.S.tests||[])[0];
+  document.getElementById('pLastTest').textContent=lt?`последняя: ${Math.round(lt.right/lt.total*100)}% · ${lt.d}`:'ещё не проходила';
   const cy=this.cycle(iso(new Date()));
   document.getElementById('pCalH').textContent=cy>1?`Карта дней · ${cy} цикла`:'Карта дней';
   document.getElementById('pCheck').innerHTML=CHECKS.map(k=>`
@@ -1224,6 +1295,86 @@ saveSet(){
   this.S.mins=+document.getElementById('stMin').value;
   if(nw!==old){const sh=diffD(old,nw);this.S.words.forEach(w=>{if(w.reps===0)w.due=addD(w.due,sh)});this.S.start=nw;this.cur=iso(new Date())}
   this.save();this.all();this.toast('Сохранено');
+},
+/* ---------- контрольная ---------- */
+tsStart(n){
+  const pool=this.S.words.filter(w=>w.ru&&w.en).slice().sort(()=>Math.random()-.5).slice(0,n);
+  if(pool.length<4){this.toast('Нужно минимум 4 слова в базе');return}
+  this.tq=pool.map(w=>{
+    const f=this.fmt(w);
+    return {w,f,opts:f==='mc'?this.mcOpts(w):null,gap:f==='cloze'?this.blank(w):null};
+  });
+  this.tix=0;this.tres=[];this.tstage='run';this.rTest();
+},
+tsAnswer(val,pickIdx){
+  const q=this.tq[this.tix];if(!q)return;
+  let ok;
+  if(q.f==='mc')ok=q.opts[pickIdx]===q.w.ru;
+  else{
+    const base=String(q.w.en).toLowerCase().replace(/^to\s+/,'').trim();
+    const v=norm(val||'');
+    ok=v===norm(base)||v===norm(q.w.en)||(v.length>2&&norm(base).split(' ').pop()===v);
+  }
+  this.tres.push({w:q.w,f:q.f,ok,said:q.f==='mc'?(q.opts[pickIdx]||''):(val||'')});
+  this.tix++;
+  if(this.tix>=this.tq.length)this.tsFinish();else this.rTest();
+},
+tsFinish(){
+  this.tstage='done';
+  this.tres.forEach(r=>this.grade(r.w,r.ok?2:0));
+  const right=this.tres.filter(r=>r.ok).length;
+  this.S.tests=this.S.tests||[];
+  this.S.tests.unshift({d:iso(new Date()),right,total:this.tres.length});
+  if(this.S.tests.length>20)this.S.tests=this.S.tests.slice(0,20);
+  this.save();this.rTest();this.rProg();this.rSide();this.rHome();
+},
+rTest(){
+  const box=$('tsBox'),btns=$('tsBtns'),meta=$('tsMeta'),res=$('tsRes'),pr=$('tsProg');
+  res.innerHTML='';pr.style.display=this.tstage==='run'?'block':'none';
+  if(this.tstage!=='run'&&this.tstage!=='done'){
+    const n=this.S.words.length;
+    meta.textContent='проверка по твоим словам';
+    box.innerHTML=`<div class="q">Контрольная из твоей базы</div>
+      <div class="ex" style="max-width:460px;color:var(--dim);font-size:13.5px">Вопросы подбираются по коробкам: новые слова — выбором, знакомые — пропуском в предложении, закреплённые — набором с клавиатуры. Результат идёт в повторения: верные двигаются дальше, ошибки возвращаются в первую коробку.</div>
+      <div class="lvl">в базе ${n} слов</div>`;
+    btns.innerHTML=[10,20,30].filter(k=>k<=Math.max(4,this.S.words.length)).map(k=>
+      `<button class="btn ${k===20?'p':''}" onclick="APP.tsStart(${k})">${k} вопросов</button>`).join('');
+    const h=(this.S.tests||[]).slice(0,5);
+    if(h.length)res.innerHTML='<div class="tres">'+h.map(x=>`<div><b>${Math.round(x.right/x.total*100)}%</b><span>${x.right} из ${x.total}</span><span style="margin-left:auto;font-family:var(--mono);font-size:11px">${x.d}</span></div>`).join('')+'</div>';
+    return;
+  }
+  if(this.tstage==='done'){
+    const right=this.tres.filter(r=>r.ok).length,pct=Math.round(right/this.tres.length*100);
+    meta.textContent='результат';
+    box.innerHTML=`<div class="big" style="color:${pct>=80?'#5FD39A':pct>=60?'var(--gold-br)':'#E8737C'}">${pct}%</div>
+      <div class="lvl">${right} из ${this.tres.length} верно</div>
+      <div class="ex" style="max-width:440px;color:var(--dim);font-size:13.5px">${pct>=80?'Уровень держишь. Ошибки уже вернулись в первую коробку.':pct>=60?'Средне. Слова с ошибками вернулись в начало — повтори их завтра.':'Слабо. Не иди дальше по плану, пока не вытянешь эту базу.'}</div>`;
+    btns.innerHTML=`<button class="btn p" onclick="APP.tstage=null;APP.rTest()">Ещё раз</button><button class="btn" onclick="APP.go('home')">На главную</button>`;
+    const bad=this.tres.filter(r=>!r.ok);
+    if(bad.length)res.innerHTML='<div class="tres">'+bad.map(r=>
+      `<div><b>${esc(r.w.en)}</b><span>${esc(r.w.ru)}</span>${r.said?`<span class="yours" style="margin-left:auto">ты: ${esc(r.said)}</span>`:''}</div>`).join('')+'</div>';
+    return;
+  }
+  const q=this.tq[this.tix];
+  meta.textContent=`вопрос ${this.tix+1} из ${this.tq.length}`;
+  $('tsProgI').style.width=(this.tix/this.tq.length*100)+'%';
+  if(q.f==='mc'){
+    box.innerHTML=`<div class="lvl">что это значит</div><div class="q">${esc(q.w.en)}</div>
+      <div class="opts">${q.opts.map((o,i)=>`<button class="opt" onclick="APP.tsAnswer(null,${i})">${esc(o)}</button>`).join('')}</div>`;
+    btns.innerHTML='';
+  }else if(q.f==='cloze'){
+    box.innerHTML=`<div class="lvl">вставь пропущенное</div>
+      <div class="q" style="font-size:21px;line-height:1.5">${esc(q.gap).replace(/____/g,'<span style="color:var(--pur-br)">____</span>')}</div>
+      <div class="ex" style="color:var(--dim);font-size:13px">${esc(q.w.ru)}</div>
+      <input id="tsIn" autocomplete="off" autocapitalize="off" placeholder="напиши слово">`;
+    btns.innerHTML=`<button class="btn p" onclick="APP.tsAnswer(document.getElementById('tsIn').value)">Ответить</button>`;
+    setTimeout(()=>{const e=document.getElementById('tsIn');if(e){e.focus();e.onkeydown=ev=>{if(ev.key==='Enter')this.tsAnswer(e.value)}}},30);
+  }else{
+    box.innerHTML=`<div class="lvl">напиши по-английски</div><div class="q">${esc(q.w.ru)}</div>
+      <input id="tsIn" autocomplete="off" autocapitalize="off" placeholder="по-английски">`;
+    btns.innerHTML=`<button class="btn p" onclick="APP.tsAnswer(document.getElementById('tsIn').value)">Ответить</button>`;
+    setTimeout(()=>{const e=document.getElementById('tsIn');if(e){e.focus();e.onkeydown=ev=>{if(ev.key==='Enter')this.tsAnswer(e.value)}}},30);
+  }
 },
 /* ---------- говорение ---------- */
 spMode(m,b){this.spm=m;if(b)document.querySelectorAll('#spTabs button').forEach(x=>x.classList.toggle('on',x===b));this.spBuild()},
@@ -1504,6 +1655,8 @@ merge(a,b){
   ['wover','rover','rhide','tover','thide','tadd'].forEach(f=>{m[f]=Object.assign({},old[f]||{},nw[f]||{})});
   const tx=new Map();[...(a.texts||[]),...(b.texts||[])].forEach(t=>tx.set(t.id,t));
   m.texts=[...tx.values()].slice(0,10);m.tcur=nw.tcur;
+  const th=new Map();[...(a.tests||[]),...(b.tests||[])].forEach(x=>th.set(x.d+'|'+x.total+'|'+x.right,x));
+  m.tests=[...th.values()].sort((x,y)=>y.d.localeCompare(x.d)).slice(0,20);
   new Set([...Object.keys(a.days||{}),...Object.keys(b.days||{})]).forEach(d=>{
     const x=(a.days||{})[d]||{},y=(b.days||{})[d]||{},tk={};
     new Set([...Object.keys(x.tasks||{}),...Object.keys(y.tasks||{})]).forEach(k=>{if((x.tasks||{})[k]||(y.tasks||{})[k])tk[k]=true});
