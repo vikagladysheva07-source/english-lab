@@ -290,18 +290,21 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
     <input type="file" id="impF" accept=".json" style="display:none" onchange="APP.importData(this)">
     <button class="btn" onclick="APP.wipe()">Сбросить всё</button></div>
   <div class="sec"><h2>Синхронизация между устройствами</h2>
-    <div class="grid g2" style="margin-bottom:10px">
-      <div class="cell"><label class="fl"><span class="k">Supabase URL</span><input id="syU" placeholder="https://xxxx.supabase.co"></label></div>
-      <div class="cell"><label class="fl"><span class="k">Anon key</span><input id="syK" type="password" placeholder="eyJhbGci..."></label></div>
+    <div id="syReady" style="display:none">
+      <div class="cell" style="border:1px solid var(--line);border-radius:10px;margin-bottom:12px">
+        <div class="k">Твоя личная ссылка · открой её на всех устройствах</div>
+        <input id="syLink" readonly style="margin-top:8px;font-family:var(--mono);font-size:12px">
+      </div>
+      <div class="row"><button class="btn p" onclick="APP.copyLink()">Скопировать</button>
+        <button class="btn" onclick="APP.syncNow(1)">Синхронизировать сейчас</button>
+        <button class="btn" onclick="APP.syncOff()">Отключить</button>
+        <span class="tag" id="syStat"></span></div>
+      <p style="color:var(--faint);font-size:12.5px;margin:12px 0 0">Ключ в конце ссылки открывает доступ к твоим данным. Не публикуй её.</p>
     </div>
-    <div class="grid g2" style="margin-bottom:12px">
-      <div class="cell"><label class="fl"><span class="k">Ключ доступа к своим данным</span><input id="syS" placeholder="сгенерируется"></label></div>
-      <div class="cell"><div class="k" style="font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">Статус</div><div id="syStat" style="font-size:13px;margin-top:6px;color:var(--dim)">не настроена</div></div>
+    <div id="syOff" style="display:none">
+      <p style="color:var(--dim);font-size:13px;margin:0 0 12px">Прогресс сейчас живёт только в этом браузере. Включи — и телефон с ноутбуком будут вести одну базу.</p>
+      <div class="row"><button class="btn p" onclick="APP.enable()">Включить синхронизацию</button><span class="tag" id="syStat2"></span></div>
     </div>
-    <div class="row"><button class="btn p" onclick="APP.syncSave()">Сохранить и синхронизировать</button>
-      <button class="btn" onclick="APP.syncNow(1)">Синхронизировать сейчас</button>
-      <button class="btn" onclick="APP.syncOff()">Отключить</button></div>
-    <p style="color:var(--faint);font-size:12.5px;margin:12px 0 0">Ключи хранятся только в этом браузере и не попадают в код страницы. На втором устройстве введи те же три значения — прогресс объединится.</p>
   </div>
   <div class="sec"><h2>Метод</h2><div id="methodBox"></div></div>
 </section>
@@ -573,6 +576,9 @@ const RES=[
 ["Книги","BK","Animal Farm — Orwell","","Первая неадаптированная книга, которую реально дочитать."]];
 </script>
 <script>
+/* Подставляется при деплое. Это публичные значения Supabase — они и так
+   уходят в браузер. Доступ к данным даёт не они, а ключ в конце ссылки (#k=...). */
+const CFG={url:'',key:''};
 const KEY='wikki_english_lab_v1',INT=[0,1,3,7,16,35,90];
 const DN=['вс','пн','вт','ср','чт','пт','сб'],MN=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
 const iso=d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
@@ -593,8 +599,31 @@ init(){
   document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>this.go(b.dataset.v,b));
   document.getElementById('tNote').oninput=()=>{clearTimeout(this._n);this._n=setTimeout(()=>{this.day(this.cur).note=document.getElementById('tNote').value;this.save()},500)};
   document.addEventListener('keydown',e=>this.keys(e));
+  this.adopt();
   this.all();
   if(this.S.sync&&this.S.sync.url)this.syncNow(0);
+},
+adopt(){
+  const h=new URLSearchParams((location.hash||'').replace(/^#/,''));
+  const slug=(h.get('k')||'').trim()||((this.S.sync||{}).slug||'');
+  if(!slug)return;
+  const url=(this.S.sync||{}).url||CFG.url, key=(this.S.sync||{}).key||CFG.key;
+  if(!url||!key)return;
+  this.S.sync={url,key,slug,last:(this.S.sync||{}).last||0};
+  try{localStorage.setItem(KEY,JSON.stringify(this.S))}catch(e){}
+  if(!h.get('k'))history.replaceState(null,'','#k='+slug);
+},
+myLink(){const c=this.S.sync;return c&&c.slug?location.origin+location.pathname+'#k='+c.slug:''},
+enable(){
+  if(!CFG.url||!CFG.key)return this.toast('Синхронизация не настроена в этой сборке');
+  const slug=[...crypto.getRandomValues(new Uint8Array(18))].map(b=>b.toString(36)).join('').slice(0,26);
+  this.S.sync={url:CFG.url,key:CFG.key,slug,last:0};
+  history.replaceState(null,'','#k='+slug);
+  this.save();this.syncNow(1);
+},
+copyLink(){
+  const l=this.myLink();if(!l)return this.toast('Сначала включи синхронизацию');
+  (navigator.clipboard?navigator.clipboard.writeText(l):Promise.reject()).then(()=>this.toast('Ссылка скопирована')).catch(()=>this.toast(l));
 },
 fresh(){
   const start=iso(new Date()),words=[];
@@ -926,9 +955,12 @@ chk(id){this.S.checks[id]=!this.S.checks[id];this.save();this.rProg()},
 rSet(){
   document.getElementById('stStart').value=this.S.start;
   document.getElementById('stMin').value=this.S.mins;
-  const c=this.S.sync||{};
-  $('syU').value=c.url||'';$('syK').value=c.key||'';$('syS').value=c.slug||'';
-  $('syStat').textContent=!c.url?'не настроена':(c.last?'последняя синхронизация '+new Date(c.last).toLocaleString('ru'):'настроена, ещё не синхронизировалась');
+  const c=this.S.sync||{},on=!!(c.url&&c.slug);
+  $('syReady').style.display=on?'block':'none';
+  $('syOff').style.display=on?'none':'block';
+  if(on){$('syLink').value=this.myLink();
+    $('syStat').textContent=c.last?'обновлено '+new Date(c.last).toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}):'ещё не синхронизировалось'}
+  else $('syStat2').textContent=CFG.url?'':'не настроена в этой сборке';
   document.getElementById('methodBox').innerHTML=METHOD.map(([t,s,d])=>`
     <div style="padding:12px 0;border-bottom:1px solid var(--line)">
       <div class="row" style="gap:10px"><span style="font-weight:500">${esc(t)}</span><span class="tag">${esc(s)}</span></div>
@@ -941,14 +973,6 @@ saveSet(){
   this.save();this.all();this.toast('Сохранено');
 },
 /* ---------- синхронизация ---------- */
-syncSave(){
-  const url=$('syU').value.trim().replace(/\/+$/,''),key=$('syK').value.trim();
-  let slug=$('syS').value.trim();
-  if(!url||!key)return this.toast('Нужны URL и anon key');
-  if(!slug){slug=[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(36)).join('').slice(0,24);$('syS').value=slug}
-  this.S.sync={url,key,slug,last:(this.S.sync||{}).last||0};
-  this.save();this.syncNow(1);
-},
 syncOff(){delete this.S.sync;this.save();this.rSet();this.toast('Синхронизация отключена')},
 async rpc(fn,body){
   const c=this.S.sync;if(!c||!c.url||!c.key)return null;
