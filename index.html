@@ -1,0 +1,1015 @@
+<title>English Lab</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07070D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="English Lab">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07070D; --s1:#0C0C12; --s2:#12121A; --s3:#191922;
+  --ink:#F2EDE2; --dim:#8B8798; --faint:#514D5E;
+  --pur:#9B6FE8; --pur-br:#C4A4FF; --cyan:#00C4D4; --gold:#C9A227;
+  --line:rgba(242,237,226,.07); --line-2:rgba(155,111,232,.22);
+  --mono:'DM Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 14px/1.55 'DM Sans',system-ui,sans-serif}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(155,111,232,.22);border-radius:7px}
+:focus-visible{outline:1.5px solid var(--pur);outline-offset:2px}
+
+.app{display:grid;grid-template-columns:206px 1fr;min-height:100vh}
+.side{border-right:1px solid var(--line);padding:24px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:22px}
+.brand{font-weight:900;font-size:15px;letter-spacing:.14em;text-transform:uppercase;padding:0 8px;color:var(--ink)}
+.brand b{color:var(--pur-br);font-weight:900}
+.nav{display:flex;flex-direction:column;gap:1px}
+.nav button{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:0;padding:9px 10px;border-radius:8px;color:var(--dim);font-size:13.5px;font-weight:500;transition:.14s}
+.nav button:hover{color:var(--ink);background:var(--s1)}
+.nav button.on{color:var(--ink);background:var(--s2)}
+.nav .cnt{font-family:var(--mono);font-size:10px;color:var(--pur-br)}
+.side .push{margin-top:auto;display:flex;flex-direction:column;gap:10px}
+.mini{padding:0 10px;display:flex;justify-content:space-between;align-items:baseline}
+.mini .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.mini .v{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.prog{height:2px;background:var(--s3);margin:0 10px;border-radius:2px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--pur);transition:width .4s}
+
+.main{padding:34px 38px 100px;max-width:920px}
+.mtop{display:none}
+h1{font-size:30px;font-weight:900;letter-spacing:-1.4px;text-transform:uppercase;margin:0;line-height:1;text-wrap:balance}
+h1 span{color:var(--pur-br)}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+h2{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);font-weight:400;margin:0 0 12px}
+.hd{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+.sec{margin-top:34px}
+
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}
+.cell{background:var(--bg);padding:14px 15px}
+.cell .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.cell .v{font-size:24px;font-weight:900;letter-spacing:-1px;margin-top:5px;font-variant-numeric:tabular-nums}
+.cell .n{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:2px}
+
+.btn{border:1px solid var(--line);background:var(--s1);border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:500;transition:.14s}
+.btn:hover{background:var(--s2);border-color:var(--line-2)}
+.btn.p{background:var(--pur);border-color:var(--pur);color:#0B0712;font-weight:700}
+.btn.p:hover{background:var(--pur-br);border-color:var(--pur-br)}
+.btn.xs{padding:5px 9px;font-size:11px;border-radius:7px}
+.btn:disabled{opacity:.35}
+.tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.tag.a{color:var(--pur-br)}.tag.c{color:var(--cyan)}.tag.g{color:var(--gold)}
+
+input,select,textarea{background:var(--s1);border:1px solid var(--line);border-radius:8px;padding:9px 11px;width:100%;outline:none;transition:.14s}
+input:focus,select:focus,textarea:focus{border-color:var(--line-2);background:var(--s2)}
+input::placeholder,textarea::placeholder{color:var(--faint)}
+textarea{resize:vertical;min-height:70px;line-height:1.6}
+.fl{display:flex;flex-direction:column;gap:5px}
+.fl .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+
+/* tasks */
+.task{display:flex;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);transition:.14s}
+.task:hover{background:var(--s1)}
+.task:first-child{border-top:1px solid var(--line)}
+.bx{flex:0 0 16px;height:16px;border-radius:5px;border:1.5px solid var(--faint);display:grid;place-items:center;font-size:10px;color:#0B0712;transition:.14s;cursor:pointer}
+.task.done .bx{background:var(--pur);border-color:var(--pur)}
+.task.done .tt{color:var(--faint);text-decoration:line-through}
+.tt{flex:1;font-size:14px;font-weight:500;cursor:pointer}
+.tsub{color:var(--dim);font-size:12.5px;padding:0 14px 13px 42px;border-bottom:1px solid var(--line);display:none}
+.tsub.on{display:block}
+.tacts{display:flex;align-items:center;gap:9px;flex:0 0 auto}
+.ico{background:none;border:0;color:var(--faint);font-size:12px;padding:3px;line-height:1;transition:.14s;font-family:var(--mono)}
+.ico:hover{color:var(--pur-br)}
+.ico.on{color:var(--pur-br)}
+
+/* plan */
+.wk{border-bottom:1px solid var(--line)}
+.wk:first-child{border-top:1px solid var(--line)}
+.wkh{display:flex;align-items:center;gap:14px;padding:13px 4px;transition:.14s}
+.wkh:hover{background:var(--s1)}
+.wkn{font-family:var(--mono);font-size:10.5px;color:var(--faint);flex:0 0 26px}
+.wk.now .wkn{color:var(--pur-br)}
+.wkt{flex:1;font-size:14px;font-weight:500;text-align:left;background:none;border:0;padding:0}
+.wkb{display:none;padding:2px 4px 20px 40px}
+.wk.open .wkb{display:block}
+.dl{display:grid;grid-template-columns:88px 1fr;gap:7px 18px;font-size:13px;margin-top:6px}
+.dl dt{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);padding-top:3px}
+.dl dd{margin:0;color:var(--ink)}
+.dl dd b{color:var(--dim);font-weight:400}
+
+/* words */
+.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.word{background:var(--bg);padding:13px 14px;position:relative}
+.word:hover{background:var(--s1)}
+.word .en{font-weight:700;font-size:14px;padding-right:38px}
+.word .ru{color:var(--dim);font-size:13px;margin-top:1px}
+.word .ex{color:var(--faint);font-size:12px;margin-top:6px;line-height:1.5;padding-right:18px}
+.word .wa{position:absolute;top:10px;right:10px;display:flex;gap:2px;opacity:0;transition:.14s}
+.word:hover .wa{opacity:1}
+.word .bxn{position:absolute;bottom:11px;right:12px;font-family:var(--mono);font-size:9px;color:var(--faint)}
+
+/* drill */
+.flash{border:1px solid var(--line);border-radius:12px;padding:56px 26px;text-align:center;min-height:250px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px}
+.flash .q{font-size:32px;font-weight:900;letter-spacing:-1.2px;text-wrap:balance}
+.flash .a{font-size:19px;color:var(--pur-br)}
+.flash .ex{color:var(--dim);font-size:13.5px;max-width:420px;line-height:1.6}
+.flash input{max-width:340px;text-align:center;font-size:17px;padding:12px}
+.ok{color:#5FD39A}.no{color:#E8737C}
+
+/* res */
+.res{display:flex;gap:12px;align-items:baseline;padding:11px 4px;border-bottom:1px solid var(--line)}
+.res:first-child{border-top:1px solid var(--line)}
+.res:hover{background:var(--s1)}
+.res .kk{font-family:var(--mono);font-size:9.5px;color:var(--faint);flex:0 0 22px}
+.res a{color:var(--ink);text-decoration:none;font-weight:500}
+.res a:hover{color:var(--pur-br)}
+.res .d{color:var(--dim);font-size:12.5px;margin-top:2px}
+
+/* prog */
+.cal{display:grid;grid-template-columns:repeat(30,1fr);gap:3px}
+.cal i{aspect-ratio:1;border-radius:2px;background:var(--s2)}
+.cal i.d1{background:rgba(155,111,232,.3)}.cal i.d2{background:rgba(155,111,232,.6)}.cal i.d3{background:var(--pur)}
+.cal i.t{box-shadow:0 0 0 1px var(--cyan)}
+.spark{display:flex;align-items:flex-end;gap:2px;height:52px;margin-top:12px}
+.spark i{flex:1;background:var(--s3);border-radius:1px;min-height:2px}
+.spark i.f{background:var(--pur)}
+.tabs{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.tabs button{background:none;border:0;border-bottom:1px solid transparent;padding:0 0 9px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:-1px;transition:.14s}
+.tabs button:hover{color:var(--dim)}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--pur)}
+.empty{color:var(--faint);font-size:13px;padding:26px 0;text-align:center}
+.view{display:none}.view.on{display:block}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--pur);color:#0B0712;padding:9px 18px;border-radius:8px;font-weight:700;font-size:12.5px;opacity:0;pointer-events:none;transition:.2s;z-index:50}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.tmr{position:fixed;right:22px;bottom:22px;background:var(--s2);border:1px solid var(--line-2);border-radius:10px;padding:11px 15px;display:none;align-items:center;gap:12px;z-index:40}
+.tmr.on{display:flex}
+.tmr .t{font-family:var(--mono);font-size:19px;font-variant-numeric:tabular-nums}
+.tmr .l{font-size:11.5px;color:var(--dim);max-width:150px}
+.kbd{font-family:var(--mono);font-size:9.5px;color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media(max-width:880px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;z-index:60;width:206px;left:-216px;transition:left .2s;background:var(--bg)}
+  .side.open{left:0}
+  .main{padding:14px 15px 100px}
+  .mtop{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+  .mtop button{background:var(--s1);border:1px solid var(--line);border-radius:8px;width:36px;height:36px}
+  .g4,.g3{grid-template-columns:1fr 1fr}
+  .dl{grid-template-columns:1fr;gap:1px}
+  .dl dt{padding-top:10px}
+  .cal{grid-template-columns:repeat(15,1fr)}
+}
+</style>
+
+<div class="app">
+<aside class="side" id="side">
+  <div class="brand">English <b>Lab</b></div>
+  <nav class="nav" id="nav">
+    <button data-v="today" class="on">Сегодня<span class="cnt" id="nToday"></span></button>
+    <button data-v="plan">План</button>
+    <button data-v="words">Слова<span class="cnt" id="nWords"></span></button>
+    <button data-v="drill">Тренажёр<span class="cnt" id="nDue"></span></button>
+    <button data-v="res">Ресурсы</button>
+    <button data-v="prog">Прогресс</button>
+    <button data-v="set">Настройки</button>
+  </nav>
+  <div class="push">
+    <div class="mini"><span class="k">Streak</span><span class="v" id="nStreak">0</span></div>
+    <div class="mini"><span class="k">День</span><span class="v" id="nDay">0/90</span></div>
+    <div class="prog"><i id="nBar"></i></div>
+  </div>
+</aside>
+
+<main class="main">
+<div class="mtop"><button onclick="document.getElementById('side').classList.toggle('open')">☰</button><div class="brand" style="padding:0">English <b>Lab</b></div></div>
+
+<section class="view on" id="v-today">
+  <div class="hd"><div>
+    <div class="eyebrow" id="tDate"></div>
+    <h1 id="tTitle"></h1>
+  </div><div class="row">
+    <button class="btn xs" onclick="APP.move(-1)">←</button>
+    <button class="btn xs" onclick="APP.move(1)">→</button>
+    <button class="btn xs" id="tNow" onclick="APP.move(0)">Сегодня</button>
+  </div></div>
+  <div class="grid g4" style="margin-bottom:28px">
+    <div class="cell"><div class="k">Неделя</div><div class="v" id="kWeek">1</div><div class="n" id="kWeekT"></div></div>
+    <div class="cell"><div class="k">К повтору</div><div class="v" id="kDue">0</div><div class="n" id="kDueN"></div></div>
+    <div class="cell"><div class="k">В памяти</div><div class="v" id="kMem">0</div><div class="n">слов box 3+</div></div>
+    <div class="cell"><div class="k">Часов</div><div class="v" id="kHours">0</div><div class="n">всего</div></div>
+  </div>
+  <h2 id="tLoad">План дня</h2>
+  <div id="tTasks"></div>
+  <div class="sec">
+    <h2>Журнал ошибок</h2>
+    <textarea id="tNote" placeholder="Что сегодня не получилось сказать?"></textarea>
+  </div>
+</section>
+
+<section class="view" id="v-plan">
+  <div class="hd"><div><div class="eyebrow">12 недель · 3 фазы</div><h1>План <span>90 дней</span></h1></div></div>
+  <div class="tabs" id="pTabs"></div>
+  <div id="planBox"></div>
+</section>
+
+<section class="view" id="v-words">
+  <div class="hd"><div><div class="eyebrow" id="wCount"></div><h1>Слова</h1></div>
+    <div class="row"><button class="btn xs" onclick="APP.tgl('wAdd')">+ Добавить</button><button class="btn xs" onclick="APP.tgl('wBulk')">Списком</button></div></div>
+
+  <div id="wAdd" style="display:none;margin-bottom:22px">
+    <div class="grid g3" style="margin-bottom:8px">
+      <div class="cell"><label class="fl"><span class="k">EN</span><input id="wEn" placeholder="to come across"></label></div>
+      <div class="cell"><label class="fl"><span class="k">RU</span><input id="wRu" placeholder="наткнуться на"></label></div>
+      <div class="cell"><label class="fl"><span class="k">Тема</span><input id="wTag" placeholder="phrasal verbs"></label></div>
+    </div>
+    <div class="row"><input id="wEx" placeholder="Пример в контексте" style="flex:1;min-width:220px"><button class="btn p" onclick="APP.addWord()">Добавить</button></div>
+  </div>
+  <div id="wBulk" style="display:none;margin-bottom:22px">
+    <textarea id="wBulkT" style="min-height:110px" placeholder="Одна строка — одно слово:&#10;to sort out | уладить | Let me sort out the payment.&#10;bottleneck | узкое место"></textarea>
+    <div class="row" style="margin-top:8px"><button class="btn p" onclick="APP.bulk()">Импортировать</button><span class="tag">разделитель — вертикальная черта</span></div>
+  </div>
+
+  <div class="tabs" id="wTabs"></div>
+  <input id="wSearch" placeholder="Поиск" style="max-width:240px;margin-bottom:16px" oninput="APP.renderWords()">
+  <div class="wgrid" id="wList"></div>
+</section>
+
+<section class="view" id="v-drill">
+  <div class="hd"><div><div class="eyebrow" id="dMeta"></div><h1>Тренажёр</h1></div></div>
+  <div class="tabs" id="dTabs"></div>
+  <div class="flash" id="flash"></div>
+  <div class="row" id="flashBtns" style="margin-top:14px;justify-content:center"></div>
+  <div class="row" style="justify-content:center;margin-top:16px;gap:10px">
+    <span class="kbd">пробел</span><span class="tag">показать</span>
+    <span class="kbd">1 2 3</span><span class="tag">оценка</span>
+    <span class="kbd">S</span><span class="tag">озвучить</span>
+  </div>
+</section>
+
+<section class="view" id="v-res">
+  <div class="hd"><div><div class="eyebrow">36 источников</div><h1>Ресурсы</h1></div></div>
+  <div class="tabs" id="rTabs"></div>
+  <div id="rList"></div>
+  <div class="sec"><h2>Своя ссылка</h2>
+    <div class="row"><input id="rN" placeholder="Название" style="flex:1;min-width:160px"><input id="rU" placeholder="https://" style="flex:1;min-width:160px"><select id="rC" style="width:auto"></select><button class="btn p" onclick="APP.addRes()">+</button></div>
+  </div>
+</section>
+
+<section class="view" id="v-prog">
+  <div class="hd"><div><div class="eyebrow" id="pPct"></div><h1>Прогресс</h1></div></div>
+  <div class="grid g4" style="margin-bottom:28px">
+    <div class="cell"><div class="k">Активных дней</div><div class="v" id="pDays">0</div><div class="n">из 90</div></div>
+    <div class="cell"><div class="k">Задач</div><div class="v" id="pTasks">0</div><div class="n">закрыто</div></div>
+    <div class="cell"><div class="k">Box 5–6</div><div class="v" id="pMast">0</div><div class="n">в долгой памяти</div></div>
+    <div class="cell"><div class="k">Лучший streak</div><div class="v" id="pBest">0</div><div class="n">дней</div></div>
+  </div>
+  <h2>Последние 30 дней · минут</h2>
+  <div class="spark" id="pSpark"></div>
+  <div class="sec"><h2>90 дней</h2><div class="cal" id="pCal"></div></div>
+  <div class="sec"><h2>Контрольные точки</h2><div id="pCheck"></div></div>
+  <div class="sec"><h2>Журнал ошибок</h2><div id="pNotes"></div></div>
+</section>
+
+<section class="view" id="v-set">
+  <div class="hd"><div><div class="eyebrow">Данные хранятся в этом браузере</div><h1>Настройки</h1></div></div>
+  <div class="grid g2" style="margin-bottom:20px">
+    <div class="cell"><label class="fl"><span class="k">Дата старта</span><input type="date" id="stStart" onchange="APP.saveSet()"></label></div>
+    <div class="cell"><label class="fl"><span class="k">Минут в день</span><select id="stMin" onchange="APP.saveSet()">
+      <option value="30">30</option><option value="45">45</option><option value="60">60</option><option value="90">90</option></select></label></div>
+  </div>
+  <div class="row"><button class="btn" onclick="APP.exportData()">Выгрузить JSON</button>
+    <button class="btn" onclick="document.getElementById('impF').click()">Загрузить JSON</button>
+    <input type="file" id="impF" accept=".json" style="display:none" onchange="APP.importData(this)">
+    <button class="btn" onclick="APP.wipe()">Сбросить всё</button></div>
+  <div class="sec"><h2>Синхронизация между устройствами</h2>
+    <div class="grid g2" style="margin-bottom:10px">
+      <div class="cell"><label class="fl"><span class="k">Supabase URL</span><input id="syU" placeholder="https://xxxx.supabase.co"></label></div>
+      <div class="cell"><label class="fl"><span class="k">Anon key</span><input id="syK" type="password" placeholder="eyJhbGci..."></label></div>
+    </div>
+    <div class="grid g2" style="margin-bottom:12px">
+      <div class="cell"><label class="fl"><span class="k">Ключ доступа к своим данным</span><input id="syS" placeholder="сгенерируется"></label></div>
+      <div class="cell"><div class="k" style="font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)">Статус</div><div id="syStat" style="font-size:13px;margin-top:6px;color:var(--dim)">не настроена</div></div>
+    </div>
+    <div class="row"><button class="btn p" onclick="APP.syncSave()">Сохранить и синхронизировать</button>
+      <button class="btn" onclick="APP.syncNow(1)">Синхронизировать сейчас</button>
+      <button class="btn" onclick="APP.syncOff()">Отключить</button></div>
+    <p style="color:var(--faint);font-size:12.5px;margin:12px 0 0">Ключи хранятся только в этом браузере и не попадают в код страницы. На втором устройстве введи те же три значения — прогресс объединится.</p>
+  </div>
+  <div class="sec"><h2>Метод</h2><div id="methodBox"></div></div>
+</section>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+<div class="tmr" id="tmr"><span class="t" id="tmrT">00:00</span><span class="l" id="tmrL"></span><button class="btn xs" onclick="APP.stopTimer()">Стоп</button></div>
+
+<script>
+const PHASES=[
+ {n:1,t:"Фундамент",w:"1–4",d:"Времена, артикли, модальные — то, из-за чего речь рвётся."},
+ {n:2,t:"Структура",w:"5–8",d:"Условные, пассив, придаточные. Главный разрыв между B1 и B2."},
+ {n:3,t:"Беглость",w:"9–12",d:"Фразовые, коллокации, бизнес, произношение. Речь перестаёт быть переводом."}];
+
+const WEEKS=[
+{n:1,ph:1,t:"Настоящие времена",
+ gram:["Present Simple vs Continuous","Present Perfect: опыт и результат","Present Perfect Continuous","for / since / already / yet"],
+ gap:"Русский не различает I work и I'm working — отсюда неестественная речь при большом словаре.",
+ vocab:"Работа и рутина",tag:"work & routine",input:"BBC 6 Minute English",
+ output:"5 предложений о дне в четырёх настоящих временах",test:"Тест на времена, 20 вопросов"},
+{n:2,ph:1,t:"Прошедшее и будущее",
+ gram:["Past Simple vs Continuous","Past Perfect","used to / would","will / going to / Present Continuous"],
+ gap:"B1 живёт в Past Simple и will. Отсюда плоские истории.",
+ vocab:"Рассказ о событиях",tag:"storytelling",input:"Подкаст-история",
+ output:"История из жизни, 150 слов",test:"Пересказ дня в трёх прошедших временах"},
+{n:3,ph:1,t:"Артикли и предлоги",
+ gram:["a / an / the / нулевой","Countable vs uncountable","Предлоги времени","Предлоги места и движения"],
+ gap:"Артикли — маркер уровня номер один. I am designer слышно мгновенно.",
+ vocab:"Люди и места",tag:"people & places",input:"Видео-описания городов",
+ output:"Описание команды и рабочего места, 120 слов",test:"20 предложений с пропущенными артиклями"},
+{n:4,ph:1,t:"Модальные глаголы",
+ gram:["can / could / be able to","must / have to / should","may / might / must be / can't be","should have / must have"],
+ gap:"Без модальных нельзя вежливо возразить и смягчить. В переговорах это стоит денег.",
+ vocab:"Решения",tag:"decisions",input:"Деловые диалоги",
+ output:"Монолог 3 минуты о сложном решении",test:"Контроль 1: тест + монолог на запись",check:1},
+{n:5,ph:2,t:"Условные и гипотезы",
+ gram:["Zero и First conditional","Second conditional","Third conditional","Mixed, I wish / if only"],
+ gap:"Условные — язык стратегии. Без них не обсудить сценарии и риски.",
+ vocab:"Гипотезы",tag:"hypotheses",input:"TED Talks",
+ output:"Три сценария бизнеса в условных",test:"15 предложений на смешанные условные"},
+{n:6,ph:2,t:"Пассив и каузатив",
+ gram:["Passive во всех временах","Когда пассив уместен","have / get something done","It is said that"],
+ gap:"Описание процессов без пассива звучит по-детски.",
+ vocab:"Процессы",tag:"processes",input:"Бизнес-статьи вслух",
+ output:"Описание процесса, 200 слов, 8 пассивных форм",test:"15 предложений в пассив и обратно"},
+{n:7,ph:2,t:"Придаточные и связность",
+ gram:["Defining vs non-defining","which / that / who / whose","Participle clauses","however / therefore / whereas"],
+ gap:"B1 говорит рублеными фразами. B2 соединяет их — главный слышимый скачок.",
+ vocab:"Связки",tag:"discourse",input:"Лонгриды HBR",
+ output:"Письмо-предложение клиенту, 250 слов",test:"Соединить 20 пар предложений"},
+{n:8,ph:2,t:"Герундий и косвенная речь",
+ gram:["stop doing vs stop to do","Глаголы с герундием и инфинитивом","Reported speech: сдвиг времён","admit / claim / suggest / deny"],
+ gap:"Без косвенной речи нельзя пересказать переговоры и письма.",
+ vocab:"Глаголы речи",tag:"reporting",input:"Интервью с предпринимателями",
+ output:"Пересказ интервью, 250 слов",test:"Контроль 2: тест + письмо + монолог 4 минуты",check:2},
+{n:9,ph:3,t:"Фразовые и коллокации",
+ gram:["60 фразовых глаголов B2","Разделяемые и неразделяемые","make / do / take / have / get","postpone → put off"],
+ gap:"Слова без коллокаций дают верный, но неживой английский.",
+ vocab:"Фразовые глаголы",tag:"phrasal verbs",input:"Сериал с субтитрами",
+ output:"Shadowing 10 минут в день",test:"Заменить 25 глаголов на фразовые"},
+{n:10,ph:3,t:"Мнение и смягчение",
+ gram:["tend to / rather / quite / it seems","I see your point, but...","do / does для усиления","Идиомы B2"],
+ gap:"Прямой перевод русского мнения звучит грубо. Смягчение — профессиональный регистр.",
+ vocab:"Мнение",tag:"opinion",input:"Дебаты и дискуссии",
+ output:"Дебаты сама с собой: 2 минуты за, 2 против",test:"Смягчить 20 категоричных утверждений"},
+{n:11,ph:3,t:"Деловой английский",
+ gram:["Деловое письмо и follow-up","Язык переговоров","Структура презентации","Формулы созвонов"],
+ gap:"Слой лексики, который не появляется из сериалов. Нужен для международных клиентов.",
+ vocab:"Бизнес",tag:"business",input:"Записи переговоров и питчей",
+ output:"Питч WIKKI.OCEAN, 3 минуты, на запись",test:"Три письма: холодное, follow-up, отказ"},
+{n:12,ph:3,t:"Сборка и произношение",
+ gram:["Not only... / Never have I...","Connected speech и слабые формы","Интонация","Ревизия 11 недель"],
+ gap:"Слух ломается не о словарь, а о то, что носители склеивают слова.",
+ vocab:"Беглость",tag:"fluency",input:"Живая речь без субтитров",
+ output:"Монолог 5 минут + письмо 250 слов",test:"Контроль 3: мок-тест B2 + монолог + письмо",check:3}];
+
+const DAYT=["Ревизия","Ввод грамматики","Практика","Аудирование","Говорение","Письмо","Длинный вход"];
+
+const CHECKS=[
+ {n:1,w:4,t:"Фундамент",c:["Тест по фазе — 80%+","Монолог 3 минуты на диктофон","Выписаны 5 своих ошибок из записи","40 слов в базе, 15 в box 3+"]},
+ {n:2,w:8,t:"Структура",c:["Тест по фазе — 80%+","Письмо 250 слов, Write & Improve показывает B2","Монолог 4 минуты с пятью сложными конструкциями","80 слов в базе, 40 в box 3+"]},
+ {n:3,w:12,t:"Уровень B2",c:["EF SET или Cambridge — результат B2","Питч 5 минут на запись","Письмо 250 слов без правок","120 слов, 60 в box 5–6","30 минут живой речи без субтитров"]}];
+
+const METHOD=[
+ ["Интервальное повторение","Ebbinghaus 1885 · Cepeda 2006","Слово возвращается на грани забывания. Десять повторов подряд дают иллюзию знания и ноль через месяц."],
+ ["Вспоминание вместо перечитывания","Roediger & Karpicke 2006","Попытка вспомнить укрепляет память сильнее просмотра. Перечитывание ощущается продуктивным и почти ничего не даёт."],
+ ["Понятный ввод плюс один","Krashen 1985 · Nation 2006","Растёт то, где понятно 95–98%. Больше 5 незнакомых слов на 100 — материал пока не твой."],
+ ["Вынужденный вывод","Swain 1985","Пока только слушаешь, дыры не видны. Они проявляются в момент, когда нужно сказать."],
+ ["Чанки, а не слова","Lewis 1993 · Nation 2011","Носители хранят язык блоками. Слово без примера в контексте не считается выученным."],
+ ["Перемешивание тем","Rohrer & Taylor 2007","Блочная отработка даёт результат на уроке и слабый — через месяц. Тренажёр тасует недели."],
+ ["Узкое слушание и shadowing","Krashen 1996 · Arguelles","Один спикер и одна тема много раз: мозг перестаёт тратиться на голос и слышит структуру."],
+ ["Осознанная практика","Ericsson 1993","Часы не равны прогрессу. Работает практика на границе возможного с обратной связью."]];
+</script>
+
+<script>
+const SEED=[
+[1,"work & routine",[
+["to be in charge of","отвечать за, руководить","She's in charge of the whole design team."],
+["to keep track of","отслеживать, держать под контролем","I keep track of every client call in one file."],
+["workload","объём работы, загрузка","My workload doubled after we signed two clients."],
+["to deal with","заниматься чем-то, разбираться с","I deal with all incoming requests myself."],
+["to catch up on","наверстать","I need to catch up on emails tonight."],
+["to sort out","уладить, разобраться","Let me sort out the payment first."],
+["to be swamped","быть заваленной работой","I'm completely swamped this week."],
+["to run late","опаздывать","I'm running late — start the call without me."],
+["to set priorities","расставлять приоритеты","Every Monday I set priorities for the week."],
+["ongoing","текущий, продолжающийся","It's an ongoing project, not a one-off task."]]],
+[2,"storytelling",[
+["it turned out (that)","оказалось, что","It turned out the client had never read the proposal."],
+["to end up (doing)","в итоге прийти к тому, что","We ended up rebuilding the whole funnel."],
+["eventually","в конце концов","Eventually she agreed to the new price."],
+["to come up with","придумать, предложить","I came up with the idea on the train."],
+["to figure out","понять, разобраться","It took me a month to figure out what was wrong."],
+["by the time","к тому моменту, как","By the time I called, they had already signed."],
+["a turning point","переломный момент","That launch was a turning point for the company."],
+["to give up","сдаться, бросить","I almost gave up after the third rejection."],
+["at first","сначала","At first I thought it was a mistake."],
+["to look back on","оглядываться на","Looking back on it, the risk was worth taking."]]],
+[3,"people & places",[
+["outgoing","общительный","She's outgoing — she runs every client call."],
+["down-to-earth","приземлённый, простой в общении","He's surprisingly down-to-earth for a founder."],
+["reliable","надёжный","I need a reliable assistant, not a fast one."],
+["to get along with","ладить с кем-то","I get along with almost everyone on the team."],
+["a bit of a perfectionist","немного перфекционист","I'm a bit of a perfectionist about design."],
+["crowded","переполненный людьми","The venue was crowded by nine."],
+["cosy","уютный","We rented a cosy studio near the centre."],
+["within walking distance","в пешей доступности","The office is within walking distance of my flat."],
+["to be based in","базироваться, находиться в","Our team is based in three countries."],
+["stunning","потрясающий","The view from the terrace was stunning."]]],
+[4,"decisions",[
+["to be worth (doing)","стоить того, чтобы","It's worth waiting another week."],
+["to be bound to","обязательно произойдёт","Prices are bound to rise next quarter."],
+["I'd rather","я бы предпочла","I'd rather lose the deal than cut the price."],
+["to be supposed to","предполагается, что должен","We were supposed to launch in June."],
+["to have no choice but to","не иметь выбора, кроме как","I had no choice but to fire him."],
+["trade-off","компромисс, размен","Speed and quality are always a trade-off."],
+["to weigh up the options","взвесить варианты","Give me a day to weigh up the options."],
+["it makes sense to","имеет смысл","It makes sense to test it on a small budget."],
+["to put off","откладывать","Stop putting off the difficult conversation."],
+["to back out","пойти на попятную","The investor backed out two days before signing."]]],
+[5,"hypotheses",[
+["unless","если не","I won't sign unless they change clause four."],
+["as long as","при условии, что","I'll do it as long as the payment is upfront."],
+["otherwise","иначе, в противном случае","Send it today, otherwise we lose the slot."],
+["in that case","в таком случае","In that case, let's postpone the launch."],
+["I wish I had","жаль, что я не...","I wish I had hired her a year earlier."],
+["to be likely to","вероятно, будет","This channel is likely to bring the first clients."],
+["what if","что если","What if we charged twice as much?"],
+["provided that","при условии, что","We can start on Monday provided that the brief is ready."],
+["a long shot","маловероятный вариант","It's a long shot, but I'll write to him anyway."],
+["to take a chance on","рискнуть с чем-то","I took a chance on an unknown market and it paid off."]]],
+[6,"processes",[
+["to carry out","проводить, выполнять","We carried out the research in two weeks."],
+["to outsource","отдать на аутсорс","Most of the editing is outsourced."],
+["to streamline","упростить, оптимизировать","We streamlined onboarding from ten steps to three."],
+["bottleneck","узкое место","Approval is the bottleneck, not production."],
+["to get something done","сделать что-то чужими руками","I got the whole site redesigned in a week."],
+["to roll out","раскатить, запустить","We'll roll out the new process next month."],
+["workflow","рабочий процесс","The entire workflow runs on three tools."],
+["to be handled by","обрабатываться кем-то","Support is handled by an AI agent now."],
+["scalable","масштабируемый","The model has to be scalable from day one."],
+["to keep someone in the loop","держать в курсе","Keep me in the loop on the negotiations."]]],
+[7,"discourse",[
+["which is why","вот почему","The market shifted, which is why we repriced."],
+["in other words","иными словами","In other words, we were solving the wrong problem."],
+["that being said","при этом, тем не менее","That being said, the numbers are still strong."],
+["as far as I'm concerned","что касается меня","As far as I'm concerned, the deal is closed."],
+["on top of that","вдобавок к этому","On top of that, they asked for a discount."],
+["to put it simply","проще говоря","To put it simply, we sell systems, not content."],
+["bear in mind that","имей в виду, что","Bear in mind that the market changes every quarter."],
+["with that in mind","с учётом этого","With that in mind, I'd start with one channel."],
+["to follow up","вернуться к вопросу, написать повторно","I'll follow up on Thursday if they stay silent."],
+["moving forward","в дальнейшем","Moving forward, all briefs go through one form."]]],
+[8,"reporting",[
+["to admit","признать","He admitted missing the deadline."],
+["to claim","утверждать","They claim to have doubled revenue."],
+["to point out","отметить, указать на","She pointed out that the budget was unrealistic."],
+["to suggest","предложить","I suggested starting with a paid pilot."],
+["to deny","отрицать","He denied ever seeing the contract."],
+["to insist on","настаивать на","She insisted on a written agreement."],
+["to warn","предупредить","I warned them about the cash gap in March."],
+["to refuse","отказаться","They refused to pay before delivery."],
+["to look forward to","с нетерпением ждать","I'm looking forward to hearing from you."],
+["to be reluctant to","неохотно делать, не хотеть","Clients are reluctant to pay upfront at first."]]],
+[9,"phrasal verbs",[
+["to bring up","поднять тему","Don't bring up the price until the end."],
+["to turn down","отклонить, отказать","I turned down three projects last month."],
+["to look into","изучить вопрос","I'll look into it and get back to you."],
+["to work out","получаться; вычислить","It worked out better than we expected."],
+["to take on","взять на себя проект или клиента","I can't take on another client this quarter."],
+["to make a decision","принять решение","We need to make a decision by Friday."],
+["to take responsibility for","взять ответственность за","She took responsibility for the whole launch."],
+["to make progress","делать успехи","You're making real progress with speaking."],
+["to set up","организовать, настроить","We set up the whole system in four days."],
+["to run into","столкнуться с чем-то","We ran into a problem with the payments."]]],
+[10,"opinion",[
+["to tend to","обычно делать, иметь тенденцию","I tend to overcommit at the start of a project."],
+["it seems to me that","мне кажется, что","It seems to me that we're solving a symptom."],
+["to some extent","в некоторой степени","I agree to some extent, but not entirely."],
+["arguably","возможно, можно утверждать","This is arguably our strongest case study."],
+["I'm not entirely convinced","я не до конца убеждена","I'm not entirely convinced by these numbers."],
+["rather","довольно, слегка","The offer is rather vague at the moment."],
+["to have a point","быть отчасти правым","You have a point, but the timing is wrong."],
+["broadly speaking","в общем и целом","Broadly speaking, the strategy is working."],
+["there's no denying that","нельзя отрицать, что","There's no denying that the market has changed."],
+["to overstate","преувеличить","I don't want to overstate the results."]]],
+[11,"business",[
+["to close a deal","закрыть сделку","We closed the deal after the second call."],
+["retainer","абонентская оплата, ретейнер","Two clients are on a monthly retainer."],
+["to scale up","масштабировать","We're ready to scale up the production side."],
+["revenue","выручка","Revenue grew forty percent this quarter."],
+["to onboard a client","ввести клиента в работу","We onboard a client in three working days."],
+["proposal","коммерческое предложение","I'll send the proposal tonight."],
+["to negotiate terms","договариваться об условиях","We're still negotiating terms."],
+["leverage","рычаг, преимущество","A strong case study is real leverage in a call."],
+["stakeholder","заинтересованная сторона","Every stakeholder has to approve the brief."],
+["to deliver results","давать результат","We get paid to deliver results, not hours."]]],
+[12,"fluency",[
+["not only... but also","не только... но и","Not only did we deliver, but we also cut the cost."],
+["what I mean is","что я имею в виду","What I mean is that content alone won't sell."],
+["the thing is","дело в том, что","The thing is, the offer was never the problem."],
+["hands down","безоговорочно","That's hands down the best decision I made."],
+["to go the extra mile","сделать больше, чем требуется","Our team always goes the extra mile."],
+["off the top of my head","навскидку","Off the top of my head, around thirty clients."],
+["in the long run","в долгосрочной перспективе","In the long run, systems beat effort."],
+["to be on the same page","понимать друг друга одинаково","Let's make sure we're on the same page."],
+["to nail it","попасть в точку, сделать идеально","She absolutely nailed the presentation."],
+["to be worth every penny","стоить каждой копейки","The course was worth every penny."]]]
+];
+</script>
+<script>
+const RCAT=["Грамматика","Аудирование","Чтение","Говорение","Словари","Письмо","Произношение","Тесты","Книги"];
+const RES=[
+["Грамматика","GR","Test-English","https://test-english.com","Упражнения по уровням. B1–B2 закрывает всю грамматику плана."],
+["Грамматика","GR","Perfect English Grammar","https://www.perfect-english-grammar.com","Короткие объяснения плюс PDF-упражнения."],
+["Грамматика","GR","British Council","https://learnenglish.britishcouncil.org/grammar","Раздел B1–B2 от авторов учебников."],
+["Грамматика","GR","engVid","https://www.engvid.com","Видеоуроки, когда текст не заходит."],
+["Аудирование","LS","BBC 6 Minute English","https://www.bbc.co.uk/learningenglish","Диалог, лексика, транскрипт. Ежедневный формат."],
+["Аудирование","LS","Luke's English Podcast","https://teacherluke.co.uk","Длинные эпизоды с транскриптами. Основа узкого слушания."],
+["Аудирование","LS","All Ears English","https://www.allearsenglish.com","Американский вариант, много про работу."],
+["Аудирование","LS","TED Talks","https://www.ted.com/talks","Живая речь с полной расшифровкой. С 5-й недели."],
+["Аудирование","LS","Language Reactor","https://www.languagereactor.com","Двойные субтитры для Netflix и YouTube."],
+["Чтение","RD","Breaking News English","https://breakingnewsenglish.com","Одна новость в семи уровнях сложности."],
+["Чтение","RD","News in Levels","https://www.newsinlevels.com","Новости в трёх уровнях с аудио. Бери третий."],
+["Чтение","RD","English E-Reader","https://readers.english-e-reader.net","Адаптированные книги по уровням с аудио."],
+["Чтение","RD","Harvard Business Review","https://hbr.org","С 6-й недели. Деловой английский в оригинале."],
+["Говорение","SP","italki","https://www.italki.com","Преподаватель от 10 $/час. Два раза в неделю ускоряют план вдвое."],
+["Говорение","SP","Cambly","https://www.cambly.com","Носители по запросу без записи."],
+["Говорение","SP","Tandem","https://www.tandem.net","Обмен языками бесплатно. Снимает страх говорить."],
+["Говорение","SP","YouGlish","https://youglish.com","Как реальные люди произносят конкретную фразу."],
+["Словари","VC","Oxford Learner's","https://www.oxfordlearnersdictionaries.com","Метка CEFR у каждого слова. Ищи B2."],
+["Словари","VC","Longman","https://www.ldoceonline.com","Лучший по коллокациям и живым примерам."],
+["Словари","VC","Ozdic","https://ozdic.com","Какой глагол идёт с этим существительным."],
+["Словари","VC","Ludwig","https://ludwig.guru","Проверка фразы по корпусу реальных текстов."],
+["Словари","VC","Anki","https://apps.ankiweb.net","Если захочешь вынести слова наружу и синхронизировать."],
+["Письмо","WR","Write & Improve","https://writeandimprove.com","Cambridge оценивает текст по CEFR бесплатно."],
+["Письмо","WR","LanguageTool","https://languagetool.org","Проверка грамматики без подписки."],
+["Письмо","WR","DeepL Write","https://www.deepl.com/write","Как переформулировал бы носитель. После своей версии."],
+["Произношение","PR","Rachel's English","https://www.youtube.com/@rachelsenglish","Звуки и связная речь. Для 12-й недели."],
+["Произношение","PR","Forvo","https://forvo.com","Произношение любого слова живыми носителями."],
+["Произношение","PR","ELSA Speak","https://www.elsaspeak.com","Оценивает твоё произношение по звукам."],
+["Тесты","TS","EF SET","https://www.efset.org","50 минут, сертификат, результат по CEFR."],
+["Тесты","TS","Cambridge Test your English","https://www.cambridgeenglish.org/test-your-english/","15 минут. Для стартовой диагностики."],
+["Тесты","TS","Exam English","https://www.examenglish.com","Пробные части FCE и IELTS."],
+["Книги","BK","English Grammar in Use — Murphy","","Синий, intermediate. Основной учебник недель 1–8."],
+["Книги","BK","English Vocabulary in Use Upper-Int.","","McCarthy и O'Dell. С 5-й недели по юниту в день."],
+["Книги","BK","English Collocations in Use","","Сочетаемость слов. Недели 9–10."],
+["Книги","BK","Rework — Jason Fried","","Короткие главы, простой синтаксис, нужная лексика."],
+["Книги","BK","Animal Farm — Orwell","","Первая неадаптированная книга, которую реально дочитать."]];
+</script>
+<script>
+const KEY='wikki_english_lab_v1',INT=[0,1,3,7,16,35,90];
+const DN=['вс','пн','вт','ср','чт','пт','сб'],MN=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+const iso=d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+const addD=(s,n)=>{const d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return iso(d)};
+const diffD=(a,b)=>Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5);
+const uid=()=>Math.random().toString(36).slice(2,10);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $=i=>document.getElementById(i)||{value:'',textContent:'',style:{},classList:{toggle(){},add(){},remove(){}}};
+const norm=s=>s.toLowerCase().replace(/[^a-zа-яё0-9 ]/gi,'').replace(/\s+/g,' ').trim();
+
+const APP={
+S:null,view:'today',cur:iso(new Date()),mode:'due',queue:[],card:null,shown:false,wTab:'all',rTab:RCAT[0],pTab:0,tick:null,
+
+init(){
+  try{this.S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+  if(!this.S||!this.S.words)this.S=this.fresh();
+  if(!this.S.fav)this.S.fav={};
+  document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>this.go(b.dataset.v,b));
+  document.getElementById('tNote').oninput=()=>{clearTimeout(this._n);this._n=setTimeout(()=>{this.day(this.cur).note=document.getElementById('tNote').value;this.save()},500)};
+  document.addEventListener('keydown',e=>this.keys(e));
+  this.all();
+  if(this.S.sync&&this.S.sync.url)this.syncNow(0);
+},
+fresh(){
+  const start=iso(new Date()),words=[];
+  SEED.forEach(([wk,tag,l])=>l.forEach(([en,ru,ex])=>words.push({id:uid(),en,ru,ex,tag,wk,box:1,due:addD(start,(wk-1)*7),reps:0,lapses:0})));
+  return {v:2,start,mins:60,days:{},words,res:[],checks:{},fav:{},best:0};
+},
+save(){this.S.t=Date.now();
+  try{localStorage.setItem(KEY,JSON.stringify(this.S))}catch(e){if(!this._warn){this._warn=1;this.toast('Браузер не даёт сохранять — прогресс не запомнится')}}
+  if(this.S.sync&&this.S.sync.url){clearTimeout(this._ps);this._ps=setTimeout(()=>this.push(),4000)}},
+day(d){if(!this.S.days[d])this.S.days[d]={tasks:{},note:'',min:0};return this.S.days[d]},
+idx(d){return diffD(this.S.start,d||this.cur)},
+week(d){return Math.max(1,Math.min(12,Math.floor(this.idx(d)/7)+1))},
+go(v,b){
+  this.view=v;
+  document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===(b||document.querySelector(`#nav [data-v=${v}]`))));
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+  document.getElementById('side').classList.remove('open');window.scrollTo(0,0);
+  if(v==='drill')this.build();
+  this.all();
+},
+toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(this._t);this._t=setTimeout(()=>t.classList.remove('on'),1800)},
+tgl(id){const e=document.getElementById(id);e.style.display=e.style.display==='none'?'block':'none'},
+
+/* ---------- план дня ---------- */
+tasks(date){
+  const i=this.idx(date),w=WEEKS[Math.max(0,Math.min(11,Math.floor(i/7)))],dw=new Date(date+'T12:00:00').getDay(),T=[];
+  const a=(pri,min,t,d)=>T.push({id:date+'#'+T.length,pri,min,t,d});
+  const due=this.dueToday(date).length;
+
+  if(i===0){
+    a(1,15,'Диагностика уровня','Cambridge Test your English. Запиши результат — это точка А.');
+    a(1,20,'Диагностика грамматики','Test-English, раздел B1. Темы ниже 70% — твои дыры.');
+    a(1,10,'Монолог 2 минуты на запись','«Чем я занимаюсь». Сохрани файл — послушаешь через 90 дней.');
+    a(2,10,'Первые 10 слов','Вкладка «Слова», прочитай вслух с примерами.');
+    a(3,10,'Выбери по одному ресурсу из категории','Один учебник, один подкаст, один сериал. Не десять.');
+    a(4,20,'Поставь якорь в календаре','Одно время каждый день.');
+    return this.trim(T);
+  }
+  a(1,10,`Повтор слов · ${due}`,'Сначала скажи ответ вслух, потом открывай.');
+
+  if(dw===1){
+    a(1,20,`Грамматика: ${w.gram[0]}`,'Правило, затем 20 упражнений. В конце три своих предложения.');
+    a(2,15,`Ввод: ${w.input}`,'Пауза на каждой незнакомой фразе, сразу в базу.');
+    a(3,10,`10 новых слов · ${w.vocab}`,'Уже открыты в базе. Прочитай вслух с примерами.');
+    a(4,25,'Дополнительное чтение','Статья или глава книги.');
+  }else if(dw===2){
+    a(1,20,`Грамматика: ${w.gram[1]}`,'Ошибся — выпиши правильный вариант целиком, не только исправление.');
+    a(1,10,'20 предложений вслух','Про свою работу, не абстрактные.');
+    a(2,15,`Ввод: ${w.input}`,'');
+    a(3,10,'5 новых слов на YouGlish','Услышь, как их произносят в реальных видео.');
+    a(4,30,'Разговорная практика','30 минут живого диалога.');
+  }else if(dw===3){
+    a(1,25,'Один ролик три раза','Без субтитров, с субтитрами, снова без.');
+    a(1,10,'8 фраз в базу','Целыми фразами с контекстом.');
+    a(2,15,`Грамматика: ${w.gram[2]}`,'');
+    a(3,10,'Пересказ ролика, 2 минуты','Своими словами, без конспекта.');
+    a(4,25,'Второй ролик той же темы','Узкое слушание работает через повтор.');
+  }else if(dw===4){
+    a(1,10,'Shadowing 10 минут','Повторяй с отставанием в секунду. Копируй ритм, не смысл.');
+    a(1,10,'Монолог 2 минуты на запись',`Тема: ${w.vocab.toLowerCase()}. Без подготовки.`);
+    a(2,10,'Послушать запись, выписать 3 ошибки','Неприятно и работает лучше остального.');
+    a(2,15,`Грамматика: ${w.gram[3]}`,'');
+    a(3,15,`Ввод: ${w.input}`,'');
+    a(4,30,'Разговорная практика','Второй созвон за неделю.');
+  }else if(dw===5){
+    a(1,25,w.output,'Пиши сразу на английском. Не переводи с русского.');
+    a(1,10,'Write & Improve','Оценка по CEFR. Исправь и перечитай вслух.');
+    a(2,15,`Ввод: ${w.input}`,'');
+    a(3,10,'5 мест, где не хватило слов','Твой личный список на следующую неделю.');
+    a(4,25,'Переписать текст заново','Второй заход закрепляет исправления.');
+  }else if(dw===6){
+    a(1,45,'Длинный вход, 45 минут','Серия с Language Reactor или глава книги. Один материал.');
+    a(1,10,'15 фраз в базу','');
+    a(3,15,'Пересказать сюжет, 3 минуты','');
+    a(4,30,'Ещё серия или глава','Суббота — день объёма.');
+  }else{
+    a(1,20,`Ревизия: ${w.test}`,'Без подглядывания. Что не вспомнилось — в первую коробку.');
+    a(1,10,'Перечитать журнал ошибок','Повторяющаяся ошибка — тема следующей недели.');
+    a(2,30,'Разговорная практика','');
+    a(3,5,'Посмотреть план следующей недели','');
+    if(w.check)a(1,45,`Контроль ${w.check}`,'Раздел «Прогресс» — пройди все пункты.');
+  }
+  return this.trim(T);
+},
+trim(T){
+  const cap={30:1,45:2,60:3,90:4}[this.S.mins]||3,bud=this.S.mins*1.2,o=[];let s=0;
+  for(const t of T.filter(x=>x.pri<=cap)){if(o.length>=2&&s+t.min>bud)continue;o.push(t);s+=t.min}
+  return o;
+},
+dueWords(d){const x=d||iso(new Date());return this.S.words.filter(w=>w.due<=x&&w.box<6)},
+dueToday(d){const c={30:15,45:20,60:30,90:40}[this.S.mins]||30;
+  return this.dueWords(d).sort((a,b)=>a.due.localeCompare(b.due)||a.box-b.box).slice(0,c)},
+grade(w,g){
+  if(g===0){w.box=1;w.lapses++;w.due=iso(new Date())}
+  else if(g===1)w.due=addD(iso(new Date()),1);
+  else{w.box=Math.min(6,w.box+1);w.due=addD(iso(new Date()),INT[w.box])}
+  w.reps++;this.save();
+},
+doneD(d){const x=this.S.days[d];return x&&Object.values(x.tasks||{}).filter(Boolean).length>=2},
+streak(){let s=0,d=iso(new Date());if(!this.doneD(d))d=addD(d,-1);
+  while(this.doneD(d)){s++;d=addD(d,-1)}
+  if(s>(this.S.best||0)){this.S.best=s;this.save()}return s},
+
+/* ---------- озвучка ---------- */
+say(t){
+  if(!window.speechSynthesis)return this.toast('Браузер не умеет озвучивать');
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.9;speechSynthesis.speak(u);
+},
+
+/* ---------- таймер ---------- */
+startTimer(min,label){
+  this.stopTimer();this.left=min*60;this.tlabel=label;
+  document.getElementById('tmr').classList.add('on');
+  document.getElementById('tmrL').textContent=label;
+  this.paint();this.tick=setInterval(()=>{this.left--;this.paint();
+    if(this.left<=0){this.stopTimer();this.toast('Время вышло: '+label);this.beep()}},1000);
+},
+paint(){const m=Math.floor(Math.max(0,this.left)/60),s=Math.max(0,this.left)%60;
+  document.getElementById('tmrT').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')},
+stopTimer(){if(this.tick)clearInterval(this.tick);this.tick=null;document.getElementById('tmr').classList.remove('on')},
+beep(){try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();
+  o.connect(g);g.connect(c.destination);o.frequency.value=660;g.gain.setValueAtTime(.12,c.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.7);o.start();o.stop(c.currentTime+.7)}catch(e){}},
+
+/* ---------- клавиши ---------- */
+keys(e){
+  if(this.view!=='drill'||!this.card)return;
+  const t=e.target.tagName;
+  if(t==='INPUT'&&this.mode==='type'){if(e.key==='Enter'){e.preventDefault();this.shown?this.next():this.checkType()}return}
+  if(t==='INPUT'||t==='TEXTAREA')return;
+  if(e.code==='Space'){e.preventDefault();this.shown?this.next():this.show()}
+  else if(e.key==='s'||e.key==='ы')this.say(this.card.en);
+  else if(this.shown&&['1','2','3'].includes(e.key))this.ans(+e.key-1);
+},
+
+all(){this.rSide();this.rToday();this.rPlan();this.rWords();this.rRes();this.rProg();this.rSet()},
+
+rSide(){
+  const i=this.idx(iso(new Date()))+1;
+  document.getElementById('nStreak').textContent=this.streak();
+  document.getElementById('nDay').textContent=Math.max(0,Math.min(90,i))+'/90';
+  document.getElementById('nBar').style.width=Math.max(0,Math.min(100,i/90*100))+'%';
+  document.getElementById('nWords').textContent=this.S.words.length;
+  document.getElementById('nDue').textContent=this.dueToday().length||'';
+  const T=this.tasks(iso(new Date())),st=this.day(iso(new Date()));
+  const left=T.filter(t=>!st.tasks[t.id]).length;
+  document.getElementById('nToday').textContent=left||'✓';
+},
+
+rToday(){
+  const d=this.cur,i=this.idx(d),D=new Date(d+'T12:00:00'),w=WEEKS[Math.max(0,Math.min(11,Math.floor(i/7)))];
+  const today=iso(new Date());
+  document.getElementById('tDate').textContent=`${D.getDate()} ${MN[D.getMonth()]} · ${DN[D.getDay()]} · день ${Math.max(1,i+1)}/90${d===today?'':' · не сегодня'}`;
+  document.getElementById('tTitle').textContent=i===0?'Диагностика':DAYT[D.getDay()];
+  document.getElementById('tNow').style.opacity=d===today?'.35':'1';
+  document.getElementById('kWeek').textContent=this.week(d);
+  document.getElementById('kWeekT').textContent=w.vocab.toLowerCase();
+  const tot=this.dueWords().length,cap=this.dueToday().length;
+  document.getElementById('kDue').textContent=cap;
+  document.getElementById('kDueN').textContent=tot>cap?`из ${tot}`:'слов';
+  document.getElementById('kMem').textContent=this.S.words.filter(x=>x.box>=3).length;
+  document.getElementById('kHours').textContent=Math.round(Object.values(this.S.days).reduce((a,x)=>a+(x.min||0),0)/60);
+
+  const T=this.tasks(d),st=this.day(d),open=this._open||{};
+  document.getElementById('tLoad').textContent=`План дня · ${T.reduce((a,t)=>a+t.min,0)} минут`;
+  document.getElementById('tTasks').innerHTML=T.map(t=>`
+    <div class="task ${st.tasks[t.id]?'done':''}">
+      <div class="bx" onclick="APP.check('${t.id}',${t.min})">${st.tasks[t.id]?'✓':''}</div>
+      <div class="tt" onclick="APP.check('${t.id}',${t.min})">${esc(t.t)}</div>
+      <div class="tacts">
+        <span class="tag">${t.min}м</span>
+        <button class="ico" title="Таймер" onclick="APP.startTimer(${t.min},'${esc(t.t).replace(/'/g,'')}')">▷</button>
+        ${t.d?`<button class="ico ${open[t.id]?'on':''}" title="Подробно" onclick="APP.info('${t.id}')">i</button>`:''}
+      </div>
+    </div>${t.d?`<div class="tsub ${open[t.id]?'on':''}" id="s${t.id}">${esc(t.d)}</div>`:''}`).join('');
+  document.getElementById('tNote').value=st.note||'';
+},
+info(id){this._open=this._open||{};this._open[id]=!this._open[id];this.rToday()},
+check(id,min){
+  const s=this.day(this.cur);s.tasks[id]=!s.tasks[id];
+  s.min=Math.max(0,(s.min||0)+(s.tasks[id]?min:-min));
+  this.save();this.rToday();this.rSide();
+  if(this.tasks(this.cur).every(t=>s.tasks[t.id]))this.toast('День закрыт · streak '+this.streak());
+},
+move(n){this.cur=n?addD(this.cur,n):iso(new Date());this.rToday()},
+
+rPlan(){
+  const cw=this.week(iso(new Date()));
+  document.getElementById('pTabs').innerHTML=PHASES.map((p,k)=>`<button class="${this.pTab===k?'on':''}" onclick="APP.pTab=${k};APP.rPlan()">Фаза ${p.n} · ${p.w}</button>`).join('');
+  const p=PHASES[this.pTab];
+  document.getElementById('planBox').innerHTML=`<p style="color:var(--dim);font-size:13.5px;margin:0 0 18px">${esc(p.d)}</p>`+
+  WEEKS.filter(w=>w.ph===p.n).map(w=>`
+    <div class="wk ${w.n===cw?'now open':''}" id="wk${w.n}">
+      <div class="wkh"><span class="wkn">${String(w.n).padStart(2,'0')}</span>
+        <button class="wkt" onclick="document.getElementById('wk${w.n}').classList.toggle('open')">${esc(w.t)}</button>
+        ${w.check?'<span class="tag g">контроль</span>':''}${w.n===cw?'<span class="tag a">сейчас</span>':''}</div>
+      <div class="wkb">
+        <p style="color:var(--dim);font-size:13px;margin:0 0 4px">${esc(w.gap)}</p>
+        <dl class="dl">
+          <dt>Грамматика</dt><dd>${w.gram.map(esc).join('<br>')}</dd>
+          <dt>Лексика</dt><dd>${esc(w.vocab)} <b>· ${esc(w.tag)}</b></dd>
+          <dt>Ввод</dt><dd>${esc(w.input)}</dd>
+          <dt>Продукция</dt><dd>${esc(w.output)}</dd>
+          <dt>Проверка</dt><dd>${esc(w.test)}</dd>
+        </dl></div></div>`).join('');
+},
+
+rWords(){
+  const tags=['all',...new Set(this.S.words.map(w=>w.tag))];
+  document.getElementById('wTabs').innerHTML=tags.map(t=>`<button class="${this.wTab===t?'on':''}" onclick="APP.wTab='${t}';APP.rWords()">${t==='all'?'все':esc(t)}</button>`).join('');
+  const q=(document.getElementById('wSearch').value||'').toLowerCase();
+  const L=this.S.words.filter(w=>(this.wTab==='all'||w.tag===this.wTab)&&(!q||w.en.toLowerCase().includes(q)||w.ru.toLowerCase().includes(q)))
+    .sort((a,b)=>(a.wk||99)-(b.wk||99)||a.en.localeCompare(b.en));
+  document.getElementById('wCount').textContent=`${this.S.words.length} слов · ${this.S.words.filter(w=>w.box>=5).length} в долгой памяти`;
+  document.getElementById('wList').innerHTML=L.length?L.map(w=>`
+    <div class="word"><div class="wa">
+      <button class="ico" title="Озвучить" onclick="APP.say('${esc(w.en).replace(/'/g,"\\'")}')">◁)</button>
+      <button class="ico" title="Удалить" onclick="APP.del('${w.id}')">×</button></div>
+      <div class="en">${esc(w.en)}</div><div class="ru">${esc(w.ru)}</div>
+      ${w.ex?`<div class="ex">${esc(w.ex)}</div>`:''}<div class="bxn">${w.box}</div></div>`).join('')
+    :'<div class="word"><div class="empty">Ничего не найдено</div></div>';
+},
+addWord(){
+  const en=$('wEn').value.trim(),ru=$('wRu').value.trim();
+  if(!en||!ru)return this.toast('Нужны слово и перевод');
+  this.S.words.push({id:uid(),en,ru,ex:$('wEx').value.trim(),tag:$('wTag').value.trim()||'моё',wk:this.week(iso(new Date())),box:1,due:iso(new Date()),reps:0,lapses:0});
+  $('wEn').value=$('wRu').value=$('wEx').value='';this.save();this.rWords();this.rSide();this.toast('Добавлено');
+},
+bulk(){
+  const lines=$('wBulkT').value.split('\n').map(s=>s.trim()).filter(Boolean);let n=0;
+  lines.forEach(l=>{
+    const p=l.split(/\s*[|·]\s*|\s+—\s+/).map(s=>s.trim());
+    if(p.length<2||!p[0]||!p[1])return;
+    this.S.words.push({id:uid(),en:p[0],ru:p[1],ex:p[2]||'',tag:'моё',wk:this.week(iso(new Date())),box:1,due:iso(new Date()),reps:0,lapses:0});n++;
+  });
+  $('wBulkT').value='';this.save();this.rWords();this.rSide();this.toast(n?`Добавлено ${n}`:'Не разобрала ни строки');
+},
+del(id){const w=this.S.words.find(x=>x.id===id);
+  if(w){this.S.del=this.S.del||[];if(!this.S.del.includes(w.en.toLowerCase().trim()))this.S.del.push(w.en.toLowerCase().trim())}
+  this.S.words=this.S.words.filter(x=>x.id!==id);this.save();this.rWords();this.rSide()},
+
+/* ---------- тренажёр ---------- */
+build(){
+  const M={due:()=>this.dueToday(),all:()=>this.S.words.slice(),hard:()=>this.S.words.filter(w=>w.lapses>0||w.box<=2),
+    ru:()=>this.dueToday(),type:()=>this.dueToday()};
+  this.queue=(M[this.mode]||M.due)().sort(()=>Math.random()-.5);this.next();
+},
+setMode(m){this.mode=m;this.build()},
+next(){this.card=this.queue.shift()||null;this.shown=false;this.right=null;this.rFlash()},
+show(){this.shown=true;this.rFlash();if(this.mode!=='ru')this.say(this.card.en)},
+checkType(){
+  const v=document.getElementById('ti');if(!v)return;
+  this.right=norm(v.value)===norm(this.card.en)||this.card.en.toLowerCase().split(/\s+/).slice(-1)[0]===norm(v.value);
+  this.shown=true;this.rFlash();this.say(this.card.en);
+},
+ans(g){if(!this.card)return;this.grade(this.card,g);this.next();this.rSide();this.rToday();this.rWords()},
+rFlash(){
+  const f=document.getElementById('flash'),b=document.getElementById('flashBtns'),m=document.getElementById('dMeta');
+  const modes=[['due','к повтору'],['type','набрать'],['ru','ru → en'],['hard','сложные'],['all','все']];
+  document.getElementById('dTabs').innerHTML=modes.map(([k,t])=>`<button class="${this.mode===k?'on':''}" onclick="APP.setMode('${k}')">${t}</button>`).join('');
+  if(!this.card){
+    f.innerHTML=`<div class="q" style="font-size:22px">Очередь пуста</div><div class="ex">${this.mode==='due'||this.mode==='type'?'На сегодня всё. Новые карточки откроются завтра — интервал работает, только если его не ломать.':'Выбери другой режим.'}</div>`;
+    b.innerHTML='<button class="btn" onclick="APP.build()">Прогнать ещё раз</button>';m.textContent='';return;
+  }
+  const w=this.card;
+  m.textContent=`${w.tag} · неделя ${w.wk||'—'} · box ${w.box} · осталось ${this.queue.length}`;
+  if(this.mode==='type'){
+    f.innerHTML=`<div class="q" style="font-size:26px">${esc(w.ru)}</div>`+
+      (this.shown
+        ?`<div class="a ${this.right?'ok':'no'}">${esc(w.en)}</div>${w.ex?`<div class="ex">${esc(w.ex)}</div>`:''}<div class="tag">${this.right?'верно':'мимо'}</div>`
+        :`<input id="ti" placeholder="напиши по-английски" autocomplete="off" autocapitalize="off">`);
+    b.innerHTML=this.shown
+      ?`<button class="btn" onclick="APP.ans(0)">Ещё раз</button><button class="btn p" onclick="APP.ans(${this.right?2:1})">Дальше</button>`
+      :`<button class="btn p" onclick="APP.checkType()">Проверить</button>`;
+    const el=document.getElementById('ti');if(el)el.focus();
+    return;
+  }
+  const ru=this.mode==='ru';
+  f.innerHTML=`<div class="q">${esc(ru?w.ru:w.en)}</div>`+
+    (this.shown?`<div class="a">${esc(ru?w.en:w.ru)}</div>${w.ex?`<div class="ex">${esc(w.ex)}</div>`:''}`
+      :`<div class="ex">Скажи ответ вслух, потом открывай.</div>`);
+  b.innerHTML=this.shown
+    ?`<button class="btn" onclick="APP.ans(0)">Не вспомнила</button><button class="btn" onclick="APP.ans(1)">С трудом</button><button class="btn p" onclick="APP.ans(2)">Легко</button>`
+    :`<button class="btn p" onclick="APP.show()">Показать</button><button class="btn" onclick="APP.say('${esc(w.en).replace(/'/g,"\\'")}')">◁) Озвучить</button>`;
+},
+
+rRes(){
+  const s=document.getElementById('rC');if(!s.options.length)s.innerHTML=RCAT.map(c=>`<option>${c}</option>`).join('');
+  document.getElementById('rTabs').innerHTML=`<button class="${this.rTab==='fav'?'on':''}" onclick="APP.rTab='fav';APP.rRes()">★ мои</button>`+
+    RCAT.map(c=>`<button class="${this.rTab===c?'on':''}" onclick="APP.rTab='${c}';APP.rRes()">${c.toLowerCase()}</button>`).join('');
+  const all=[...RES.map(r=>({cat:r[0],k:r[1],n:r[2],u:r[3],d:r[4]})),...this.S.res];
+  const L=this.rTab==='fav'?all.filter(r=>this.S.fav[r.n]):all.filter(r=>r.cat===this.rTab);
+  document.getElementById('rList').innerHTML=L.length?L.map(r=>`
+    <div class="res"><span class="kk">${esc(r.k||'MY')}</span><div style="flex:1">
+      ${r.u?`<a href="${esc(r.u)}" target="_blank" rel="noopener">${esc(r.n)}</a>`:`<span style="font-weight:500">${esc(r.n)}</span>`}
+      <div class="d">${esc(r.d)}</div></div>
+      <button class="ico ${this.S.fav[r.n]?'on':''}" title="В мои" onclick="APP.fav('${esc(r.n).replace(/'/g,"\\'")}')">${this.S.fav[r.n]?'★':'☆'}</button></div>`).join('')
+    :'<div class="empty">Отметь звёздочкой то, чем реально пользуешься.</div>';
+},
+fav(n){this.S.fav[n]=!this.S.fav[n];this.save();this.rRes()},
+addRes(){
+  const n=$('rN').value.trim();if(!n)return this.toast('Нужно название');
+  this.S.res.push({cat:$('rC').value,k:'MY',n,u:$('rU').value.trim(),d:'моё'});
+  $('rN').value=$('rU').value='';this.save();this.rRes();this.toast('Добавлено');
+},
+
+rProg(){
+  const act=Object.keys(this.S.days).filter(d=>this.doneD(d)).length;
+  document.getElementById('pDays').textContent=act;
+  document.getElementById('pPct').textContent=Math.round(act/90*100)+'% дней активны';
+  document.getElementById('pTasks').textContent=Object.values(this.S.days).reduce((a,x)=>a+Object.values(x.tasks||{}).filter(Boolean).length,0);
+  document.getElementById('pMast').textContent=this.S.words.filter(w=>w.box>=5).length;
+  document.getElementById('pBest').textContent=this.S.best||0;
+  const t=iso(new Date());
+  let mx=1;const sp=[];for(let i=29;i>=0;i--){const d=addD(t,-i),m=(this.S.days[d]||{}).min||0;mx=Math.max(mx,m);sp.push([d,m])}
+  document.getElementById('pSpark').innerHTML=sp.map(([d,m])=>`<i class="${m?'f':''}" style="height:${Math.max(2,m/mx*52)}px" title="${d} · ${m} мин"></i>`).join('');
+  let c='';for(let i=0;i<90;i++){const d=addD(this.S.start,i),x=this.S.days[d],n=x?Object.values(x.tasks||{}).filter(Boolean).length:0;
+    c+=`<i class="${n>=5?'d3':n>=3?'d2':n>=1?'d1':''} ${d===t?'t':''}" title="${d} · ${n}"></i>`}
+  document.getElementById('pCal').innerHTML=c;
+  document.getElementById('pCheck').innerHTML=CHECKS.map(k=>`
+    <div style="margin-bottom:16px"><div class="row" style="margin-bottom:6px"><span class="tag g">неделя ${k.w}</span><span style="font-weight:500">${esc(k.t)}</span></div>
+    ${k.c.map((x,j)=>{const id=k.n+'-'+j;return `<div class="task ${this.S.checks[id]?'done':''}" style="padding:9px 0"><div class="bx" onclick="APP.chk('${id}')">${this.S.checks[id]?'✓':''}</div><div class="tt" style="font-weight:400;font-size:13px" onclick="APP.chk('${id}')">${esc(x)}</div></div>`}).join('')}</div>`).join('');
+  const N=Object.entries(this.S.days).filter(([d,x])=>x.note).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,20);
+  document.getElementById('pNotes').innerHTML=N.length?N.map(([d,x])=>`<div style="padding:9px 0;border-bottom:1px solid var(--line)"><span class="tag">${d}</span><div style="font-size:13px;margin-top:2px">${esc(x.note)}</div></div>`).join(''):'<div class="empty">Записи появятся, когда начнёшь вести журнал.</div>';
+},
+chk(id){this.S.checks[id]=!this.S.checks[id];this.save();this.rProg()},
+
+rSet(){
+  document.getElementById('stStart').value=this.S.start;
+  document.getElementById('stMin').value=this.S.mins;
+  const c=this.S.sync||{};
+  $('syU').value=c.url||'';$('syK').value=c.key||'';$('syS').value=c.slug||'';
+  $('syStat').textContent=!c.url?'не настроена':(c.last?'последняя синхронизация '+new Date(c.last).toLocaleString('ru'):'настроена, ещё не синхронизировалась');
+  document.getElementById('methodBox').innerHTML=METHOD.map(([t,s,d])=>`
+    <div style="padding:12px 0;border-bottom:1px solid var(--line)">
+      <div class="row" style="gap:10px"><span style="font-weight:500">${esc(t)}</span><span class="tag">${esc(s)}</span></div>
+      <div style="color:var(--dim);font-size:13px;margin-top:3px">${esc(d)}</div></div>`).join('');
+},
+saveSet(){
+  const old=this.S.start,nw=document.getElementById('stStart').value||old;
+  this.S.mins=+document.getElementById('stMin').value;
+  if(nw!==old){const sh=diffD(old,nw);this.S.words.forEach(w=>{if(w.reps===0)w.due=addD(w.due,sh)});this.S.start=nw;this.cur=iso(new Date())}
+  this.save();this.all();this.toast('Сохранено');
+},
+/* ---------- синхронизация ---------- */
+syncSave(){
+  const url=$('syU').value.trim().replace(/\/+$/,''),key=$('syK').value.trim();
+  let slug=$('syS').value.trim();
+  if(!url||!key)return this.toast('Нужны URL и anon key');
+  if(!slug){slug=[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(36)).join('').slice(0,24);$('syS').value=slug}
+  this.S.sync={url,key,slug,last:(this.S.sync||{}).last||0};
+  this.save();this.syncNow(1);
+},
+syncOff(){delete this.S.sync;this.save();this.rSet();this.toast('Синхронизация отключена')},
+async rpc(fn,body){
+  const c=this.S.sync;if(!c||!c.url||!c.key)return null;
+  const r=await fetch(c.url+'/rest/v1/rpc/'+fn,{method:'POST',
+    headers:{'Content-Type':'application/json',apikey:c.key,Authorization:'Bearer '+c.key},
+    body:JSON.stringify(body)});
+  if(!r.ok)throw new Error('HTTP '+r.status+' '+(await r.text()).slice(0,120));
+  const t=await r.text();return t?JSON.parse(t):null;
+},
+async push(){
+  try{await this.rpc('el_put',{k:this.S.sync.slug,d:this.strip()});
+      this.S.sync.last=Date.now();localStorage.setItem(KEY,JSON.stringify(this.S));this.rSet()}
+  catch(e){this.syncErr(e)}
+},
+async syncNow(loud){
+  if(!this.S.sync||!this.S.sync.url)return loud&&this.toast('Сначала заполни URL и ключ');
+  try{
+    const rem=await this.rpc('el_get',{k:this.S.sync.slug});
+    if(rem&&rem.words){const sy=this.S.sync;this.S=this.merge(this.S,rem);this.S.sync=sy}
+    await this.rpc('el_put',{k:this.S.sync.slug,d:this.strip()});
+    this.S.sync.last=Date.now();localStorage.setItem(KEY,JSON.stringify(this.S));
+    this.all();if(loud)this.toast('Синхронизировано');
+  }catch(e){this.syncErr(e,loud)}
+},
+syncErr(e,loud){
+  const m=String(e&&e.message||e);
+  $('syStat').textContent='ошибка: '+m.slice(0,90);
+  if(loud)this.toast(/Failed to fetch|NetworkError|CSP/i.test(m)?'Нет доступа к серверу из этого окна':'Ошибка синхронизации');
+},
+strip(){const o={};for(const k in this.S)if(k!=='sync')o[k]=this.S[k];return o},
+merge(a,b){
+  const nw=(b.t||0)>(a.t||0)?b:a;
+  const m={v:2,start:nw.start||a.start,mins:nw.mins||a.mins,best:Math.max(a.best||0,b.best||0),
+    days:{},words:[],res:[],checks:{},fav:{},del:[...new Set([...(a.del||[]),...(b.del||[])])],t:Math.max(a.t||0,b.t||0)};
+  new Set([...Object.keys(a.days||{}),...Object.keys(b.days||{})]).forEach(d=>{
+    const x=(a.days||{})[d]||{},y=(b.days||{})[d]||{},tk={};
+    new Set([...Object.keys(x.tasks||{}),...Object.keys(y.tasks||{})]).forEach(k=>{if((x.tasks||{})[k]||(y.tasks||{})[k])tk[k]=true});
+    const nx=x.note||'',ny=y.note||'';
+    m.days[d]={tasks:tk,min:Math.max(x.min||0,y.min||0),note:nx.length>=ny.length?nx:ny};
+  });
+  const map=new Map(),put=w=>{const k=(w.en||'').toLowerCase().trim();if(!k||m.del.includes(k))return;
+    const p=map.get(k);
+    if(!p)return void map.set(k,w);
+    const better=((w.reps||0)>(p.reps||0))||((w.reps||0)===(p.reps||0)&&(w.due||'')>(p.due||''));
+    map.set(k,better?w:p)};
+  (a.words||[]).forEach(put);(b.words||[]).forEach(put);
+  m.words=[...map.values()];
+  ['checks','fav'].forEach(f=>new Set([...Object.keys(a[f]||{}),...Object.keys(b[f]||{})]).forEach(k=>{if((a[f]||{})[k]||(b[f]||{})[k])m[f][k]=true}));
+  const seen=new Set();[...(a.res||[]),...(b.res||[])].forEach(r=>{if(!seen.has(r.n)){seen.add(r.n);m.res.push(r)}});
+  return m;
+},
+async exportData(){
+  const data=JSON.stringify(this.S,null,2),name='english-lab-'+iso(new Date())+'.json';
+  let dl=null;try{dl=window.claude&&claude.use?await claude.use('downloads'):null}catch(e){}
+  if(dl){try{await dl.save({filename:name,data});this.toast('Сохранено')}catch(e){this.toast(e&&e.code==='declined'?'Отменено':'Не удалось сохранить')}return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download=name;a.click();this.toast('Выгружено');
+},
+importData(i){const f=i.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.words)throw 0;this.S=d;if(!this.S.fav)this.S.fav={};this.save();this.all();this.toast('Загружено')}catch(e){this.toast('Файл не подошёл')}};
+  r.readAsText(f)},
+wipe(){if(confirm('Удалить весь прогресс?')){localStorage.removeItem(KEY);this.S=this.fresh();this.save();this.all();this.toast('Сброшено')}}
+};
+APP.init();
+</script>
