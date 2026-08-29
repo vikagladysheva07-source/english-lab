@@ -983,7 +983,7 @@ async rpc(fn,body){
   const t=await r.text();return t?JSON.parse(t):null;
 },
 async push(){
-  try{await this.rpc('el_put',{k:this.S.sync.slug,d:this.strip()});
+  try{await this.rpc('el_put',{p_k:this.S.sync.slug,p_d:this.strip()});
       this.S.sync.last=Date.now();localStorage.setItem(KEY,JSON.stringify(this.S));this.rSet()}
   catch(e){this.syncErr(e)}
 },
@@ -992,7 +992,7 @@ async syncNow(loud){
   try{
     const rem=await this.rpc('el_get',{k:this.S.sync.slug});
     if(rem&&rem.words){const sy=this.S.sync;this.S=this.merge(this.S,rem);this.S.sync=sy}
-    await this.rpc('el_put',{k:this.S.sync.slug,d:this.strip()});
+    await this.rpc('el_put',{p_k:this.S.sync.slug,p_d:this.strip()});
     this.S.sync.last=Date.now();localStorage.setItem(KEY,JSON.stringify(this.S));
     this.all();if(loud)this.toast('Синхронизировано');
   }catch(e){this.syncErr(e,loud)}
